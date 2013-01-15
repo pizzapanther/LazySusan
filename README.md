@@ -17,6 +17,4 @@ web frameworks, the built-in Admin interface.
 Lazy Susan, brings that back for you.  Lazy Susan brings you an App Engine
 admin interface that follows Django's admin conventions.  Lazy Susan does
 deviate in some respects due to immaturity and to provide a more relevant
-interface. We all also copied the Grappelli style 
-(https://github.com/sehmaschine/django-grappelli) just because it looks so much 
-better than the default Django admin.
+interface.
