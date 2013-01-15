@@ -1,3 +1,6 @@
+Lazy Susan
+==========
+
 Lazy Susan: any similar structure, as a shelf or tabletop, designed to revolve so
 that whatever it holds can be seen or reached easily.
 
