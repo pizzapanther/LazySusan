@@ -1,0 +1,52 @@
+body {
+  padding: 60px 0 0 0;
+}
+ul.nav li a span:after {
+  content: "\00BB";
+  padding-left: 15px;
+}
+ul.nav li:last-child a span:after {
+  content: "";
+  padding-left: 0;
+}
+.app_index .app .hero-unit {
+  padding: 0;
+  border: 1px solid #333333;
+}
+.app_index .app .hero-unit > h4 {
+  padding: 7px 20px;
+  margin: 0;
+  background-color: #d5d5d5;
+  border-top-right-radius: 6px;
+  border-top-left-radius: 6px;
+}
+.app_index .app .hero-unit > h4 a {
+  color: #333333;
+}
+.app_index .app .hero-unit > ul {
+  margin: 0;
+}
+.app_index .app .hero-unit > ul > li {
+  border-top: 1px solid #dddddd;
+  list-style-type: none;
+  padding: 7px 20px;
+  font-size: 90%;
+}
+.app_index .app .hero-unit > ul > li a {
+  margin-left: 10px;
+}
+.app_index .app .hero-unit > ul > li a:first-child {
+  margin-left: 0;
+}
+.app_index .app .hero-unit > ul > li a.right {
+  float: right;
+}
+.list > table {
+  font-size: 85%;
+}
+.list .pagination .filters {
+  float: right;
+}
+.list .pagination .filters input {
+  height: 16px;
+}
