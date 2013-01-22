@@ -1,0 +1,16 @@
+<div class="span8 app">{% load url from future %}
+  <div class="hero-unit">
+    <h4>
+      <a href="{% url "ls:app_index" app.0 %}">{{ app.1.name }}</a>
+    </h4>
+    <ul>
+      {% for admin in app.1.admin_instances %}
+      <li>
+        <a href="{% url "ls:"|add:admin.slug|add:":list" %}">{{ admin.name_plural }}</a>
+        <a href="{% url "ls:"|add:admin.slug|add:":add" %}" class="btn right"><i class="icon-plus"></i> Add</a>
+        <a href="{% url "ls:"|add:admin.slug|add:":list" %}" class="btn right"><i class="icon-list"></i> List</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

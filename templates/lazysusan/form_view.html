@@ -1,0 +1,40 @@
+{% extends "lazysusan/base.html" %}{% load url from future %}{% load lstags %}
+{% block title %}{% if action == 'add' %}Add {{ view.name }}{% else %}Edit {{ obj|uname }}{% endif %}{% endblock %}
+{% block breadcrumbs %}
+<li>
+  <a href="../../"><span>{{ view.app.1.name }}</span></a>
+</li>
+<li>
+  <a href="../"><span>{{ view.name_plural }}</span></a>
+</li>
+<li class="active">
+  <a href=""><span>{% if action == 'add' %}Add {{ view.name }}{% else %}Edit {{ obj|uname }}{% endif %}</span></a>
+</li>
+{% endblock %}
+{% block content %}
+<h3>{% if action == 'add' %}Add {{ view.name }}{% else %}Edit {{ obj|uname }}{% endif %}</h3>
+<form enctype="multipart/form-data" action="" method="post">
+  {% csrf_token %}
+  {% for f in form %}
+  {% if f.is_hidden %}
+  {{ f }}
+  {% else %}
+  <div id="group_{{ f.name }}" class="control-group{% if f.errors.0 %} error{% endif %}">
+    <label class="control-label" for="id_{{ f.name }}">{{ f.label }}</label>
+    <div class="controls">
+      {{ f|safe }}
+      {% if f.help_text %}
+      <span class="help-block">{{ f.help_text }}</span>
+      {% endif %}
+      {% if f.errors.0 %}
+      <span class="help-inline" id="error_{{ f.name }}">{{ f.errors.0 }}</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+  <div class="control-group">
+    <button type="submit" class="btn btn-primary">{% if action == 'add' %}Add{% else %}Update{% endif %}</button>
+  </div>
+</form>
+{% endblock %}

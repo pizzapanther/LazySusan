@@ -1,0 +1,10 @@
+{% extends "lazysusan/base.html" %}{% load url from future %}
+{% block nav %}
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="{% url "ls:index" %}">{{ LS_TITLE }}</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
