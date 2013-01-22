@@ -25,7 +25,7 @@ class User (object):
   @property
   def is_staff (self):
     if self.is_authenticated():
-      if self.user.email() in LS_STAFF_EMAILS:
+      if self.user.email().lower() in LS_STAFF_EMAILS:
         return True
         
     return False

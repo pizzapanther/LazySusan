@@ -4,10 +4,11 @@ from django.conf.urls import patterns, url, include
 from django.template.defaultfilters import slugify
 from django import http
 
-from google.appengine.ext.db import djangoforms, Key
+from google.appengine.ext.db import Key
 
 from ..utils import ImproperConfiguration, AdminResponse
 from ..paginate import pagination
+from LazySusan import djangoforms
 
 class AdminViews (object):
   slug = None
