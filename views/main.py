@@ -47,6 +47,7 @@ class AdminViews (object):
     urlpatterns = patterns('',
       url(r'^$', self.list_view, name='list'),
       url(r'^add/$', self.add_view, name='add'),
+      url(r'^(\S+)/delete/$', self.delete_view, name='delete'),
       url(r'^(\S+)/$', self.change_view, name='change'),
     )
     
@@ -73,6 +74,11 @@ class AdminViews (object):
   def add_view (self, request):
     pass
   
+  def delete_view (self, request, key):
+    obj = self.get_object(request, key)
+    obj.delete()
+    return http.HttpResponseRedirect('../../')
+    
   def change_view (self, request, key):
     obj = self.get_object(request, key)
     form_class = self.get_form(request)
