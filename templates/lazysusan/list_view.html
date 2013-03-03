@@ -17,7 +17,7 @@
     <thead>
       <tr>
         {% for name in view|list_field_names:request %}
-        <th>{{ name }}</th>
+        <th>{{ name|safe }}</th>
         {% endfor %}
       </tr>
     </thead>
@@ -26,7 +26,7 @@
       <tr>
         {% for field in view|list_fields:request %}
         <td>
-          {% if forloop.first %}<a href="./{{ row.key|urlencode }}/">{% endif %}
+          {% if forloop.first %}<a href="./{{ row|get_key|urlencode }}/">{% endif %}
           {{ row|get_attr:field }}
           {% if forloop.first %}</a>{% endif %}
         </td>

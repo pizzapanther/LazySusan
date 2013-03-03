@@ -20,7 +20,7 @@
   {{ f }}
   {% else %}
   <div id="group_{{ f.name }}" class="control-group{% if f.errors.0 %} error{% endif %}">
-    <label class="control-label" for="id_{{ f.name }}">{{ f.label }}</label>
+    {{ f.label|add_class:"control-label"|safe }}
     <div class="controls">
       {{ f|safe }}
       {% if f.help_text %}

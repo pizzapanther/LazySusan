@@ -1,14 +1,18 @@
 import types
+import logging
 
 from django.conf.urls import patterns, url, include
 from django.template.defaultfilters import slugify
 from django import http
 
 from google.appengine.ext.db import Key
+import google.appengine.ext.ndb as ndb_db
 
 from ..utils import ImproperConfiguration, AdminResponse
 from ..paginate import pagination
-from LazySusan import djangoforms
+
+from wtforms.ext.appengine import ndb
+from wtforms.ext.appengine import db
 
 class AdminViews (object):
   slug = None
@@ -35,13 +39,19 @@ class AdminViews (object):
     if self.name_plural is None:
       self.name_plural = self.name + 's'
       
-    if self.form is None:
-      class F (djangoforms.ModelForm):
-        class Meta:
-          model = self.model
-          
-      self.form = F
+    if issubclass(self.model, ndb_db.Model):
+      self.db_type = 'ndb'
       
+    else:
+      self.db_type = 'db'
+      
+    if self.form is None:
+      if self.is_ndb:
+        self.form = ndb.model_form(self.model)
+        
+      else:
+        self.form = db.model_form(self.model)
+        
   @property
   def urls (self):
     urlpatterns = patterns('',
@@ -63,6 +73,9 @@ class AdminViews (object):
     qs = self.queryset(request)
     search = request.GET.get('search', '')
     qs = self.filter_queryset(qs, request, search)
+    if self.is_ndb:
+      qs, next_cursor, more = qs.fetch_page(500)
+      
     return self.response(request, 'lazysusan/list_view.html', {'results': qs, 'search': search})
     
   def filter_queryset (self, qs, request, search):
@@ -82,10 +95,11 @@ class AdminViews (object):
   def change_view (self, request, key):
     obj = self.get_object(request, key)
     form_class = self.get_form(request)
-    f = form_class(request.POST or None, instance=obj)
+    f = form_class(request.POST or None, obj=obj)
     if request.method == 'POST':
-      if f.is_valid():
-        f.save()
+      if f.validate():
+        f.populate_obj(obj)
+        obj.put()
         return http.HttpResponseRedirect('../')
         
     c = {
@@ -104,8 +118,8 @@ class AdminViews (object):
         ret.append(self.name)
         
       else:
-        if f in mockup.fields:
-          ret.append(mockup[f].label)
+        if f in mockup._fields:
+          ret.append(mockup[f].label.text)
           
         else:
           ret.append(f)
@@ -118,15 +132,32 @@ class AdminViews (object):
       
     return ('__unicode__',)
     
+  @property
+  def is_ndb (self):
+    if self.db_type == 'ndb':
+      return True
+      
+    return False
+    
   def queryset (self, request):
+    if self.is_ndb:
+      return self.model.query()
+      
     return self.model.all()
     
   def get_form (self, request):
     return self.form
     
   def get_object (self, request, key):
-    qs = self.queryset(request)
-    obj = qs.filter('__key__ =', Key(key)).get()
+    if self.is_ndb:
+      #todo: use qs
+      key = ndb_db.Key(urlsafe=key)
+      obj = key.get()
+      
+    else:
+      qs = self.queryset(request)
+      obj = qs.filter('__key__ =', Key(key)).get()
+      
     if obj is None:
       raise http.Http404
       
