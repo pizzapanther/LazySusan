@@ -85,8 +85,21 @@ class AdminViews (object):
     return qs
     
   def add_view (self, request):
-    pass
-  
+    form_class = self.get_form(request)
+    f = form_class(request.POST or None)
+    if request.method == 'POST':
+      if f.validate():
+        obj = self.model()
+        f.populate_obj(obj)
+        obj.put()
+        return http.HttpResponseRedirect('../')
+        
+    c = {
+      'form': f,
+      'action': 'add',
+    }
+    return self.response(request, 'lazysusan/form_view.html', c)
+    
   def delete_view (self, request, key):
     obj = self.get_object(request, key)
     obj.delete()

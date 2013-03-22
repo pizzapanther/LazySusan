@@ -35,7 +35,9 @@
   {% endfor %}
   <div class="control-group">
     <button type="submit" class="btn btn-primary">{% if action == 'add' %}Add{% else %}Update{% endif %}</button>
+    {% if action == 'change' %}
     <a href="./delete/" class="btn btn-danger" onclick="return confirm('Are you sure you wish to delete {{ obj|uname|escapejs }}?')">Delete</a>
+    {% endif %}
   </div>
 </form>
 {% endblock %}
