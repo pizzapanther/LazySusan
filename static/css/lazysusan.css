@@ -1,3 +1,24 @@
 body {
   padding-top: 50px;
 }
+.app_list {
+  border: 1px solid #cccccc;
+  border-radius: 10px;
+  margin: 20px 0;
+  padding: 0;
+}
+.app_list h2 {
+  margin: 0;
+  border-bottom: 1px solid #cccccc;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  padding: 5px 20px 5px 20px;
+  font-weight: bold;
+  font-size: 2.0rem;
+  background-color: #f9f9f9;
+}
+.app_list ul {
+  margin: 10px 20px;
+  padding: 0;
+  list-style-type: none;
+}

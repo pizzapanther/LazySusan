@@ -7,8 +7,12 @@ class AppBase (object):
   
   def __init__ (self, site):
     self.site = site
+    self.admins_init = []
     
-  def app_index_namspace (self):
+    for admin in self.admins:
+      self.admins_init.append(admin(self))
+      
+  def index_urlkey (self):
     return ":".join([self.site.name, self.slug, 'index'])
     
   @property
@@ -19,12 +23,15 @@ class AppBase (object):
     from django.conf.urls import patterns, url, include
     
     urlpatterns = patterns('',
-      url(r'^$', self.index, name='index'),
+      url(r'^$', self.index_view, name='index'),
     )
     
+    for admin in self.admins_init:
+      urlpatterns += patterns('', url(r'^' + admin.slug + '/', include(admin.urls)))
+      
     return urlpatterns
     
-  def index (self, request):
+  def index_view (self, request):
     c = {
       'title': self.name,
       'app': self,
