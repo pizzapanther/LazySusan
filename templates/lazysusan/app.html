@@ -1,0 +1,12 @@
+<div class="app">
+  <h2><a href="{% url app.app_index_namspace %}">{{ app.name }}</a></h2>
+  <ul>
+    {% for admin in app.admins %}
+    <li>
+      <a href="" class="pull-right"><i class="fa fa-plus"></i> Add</a>
+      <a href="">{{ admin.plural }}</a>
+      <div class="clearfix"></div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
