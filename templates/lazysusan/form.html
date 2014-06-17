@@ -1,0 +1,24 @@
+{% extends "lazysusan/base.html" %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 col-xs-12 form_view">
+      <form role="form" method="POST" action="./">
+        {% csrf_token %}
+        {% for field in form.visible_fields %}
+        <div class="form-group{% if field.errors %} has-error{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}">
+          <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% if field.help_text %}<span class="help">{{ field.help_text }}</span>{% endif %}
+          {{ field }}
+          {% if field.errors %}<div class="text-danger">{{ field.errors.0 }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
