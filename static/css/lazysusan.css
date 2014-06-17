@@ -22,3 +22,13 @@ body {
   padding: 0;
   list-style-type: none;
 }
+.form-group.required .control-label:after {
+  content: " *";
+}
+.form-group input,
+.form-group select {
+  max-width: 450px;
+}
+.form_view {
+  margin: 20px 0;
+}

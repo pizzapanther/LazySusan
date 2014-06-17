@@ -29,3 +29,18 @@ body {
   }
 }
 
+.form-group {
+  &.required {
+    .control-label:after {
+      content: " *";
+    }
+  }
+  
+  input, select {
+    max-width: 450px;
+  }
+}
+
+.form_view {
+  margin: 20px 0;
+}

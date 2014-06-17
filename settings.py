@@ -8,6 +8,13 @@ LS_STAFF_EMAILS = getattr(settings, 'LS_STAFF_EMAILS', ())
 
 LS_PER_PAGE = getattr(settings, 'LS_PER_PAGE', 25)
 
+LS_FORM_MAP_DEFAULT = {
+  'StringProperty': 'CharField',
+  'IntegerProperty': 'IntegerField',
+}
+
+LS_FORM_MAP = getattr(settings, 'LS_FORM_MAP', LS_FORM_MAP_DEFAULT)
+
 LS_DEV = False
 if os.environ.has_key('SERVER_SOFTWARE') and os.environ['SERVER_SOFTWARE'].startswith('Dev'):
   LS_DEV = True

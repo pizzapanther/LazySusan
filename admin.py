@@ -16,7 +16,9 @@ class Admin (object):
       self.form = self.Meta.form
       
     elif self.model:
-      self.form = generate_form(self.model)
+      choices = getattr(self.Meta, 'choices', {})
+      overrides = getattr(self.Meta, 'field_overrides', {})
+      self.form = generate_form(self.model, self.Meta.fields, choices, overrides)
       
     else:
       raise Exception('Admin not configured with a form or model.')
@@ -66,7 +68,10 @@ class Admin (object):
     return ":".join([self.app.site.name, self.app.slug, self.slug, 'list'])
     
   def list_view (self, request):
-    pass
+    c = {
+      'title': self.plural,
+    }
+    return AdminResponse(self.app.site, request, 'lazysusan/list.html', c)
     
   def add_view (self, request):
     if request.POST:
@@ -79,5 +84,5 @@ class Admin (object):
       'title': 'Add ' + self.name,
       'form': form,
     }
-    return AdminResponse(self.site, request, 'lazysusan/list.html', c)
+    return AdminResponse(self.app.site, request, 'lazysusan/form.html', c)
     

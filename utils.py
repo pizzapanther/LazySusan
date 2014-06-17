@@ -10,3 +10,6 @@ class AdminResponse (TemplateResponse):
     
     super(AdminResponse, self).__init__(request, template, c, mimetype, status, content_type, current_app)
     
+def valid_choices (choices):
+  return [c[0] for c in choices]
+  
