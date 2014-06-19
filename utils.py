@@ -1,6 +1,6 @@
 from django.template.response import TemplateResponse
 
-from .settings import ADMIN_CONTEXT
+from .settings import ADMIN_CONTEXT, LS_STATIC
 
 class AdminResponse (TemplateResponse):
   def __init__(self, admin_site, request, template, context=None, mimetype=None, status=None, content_type=None, current_app=None):
@@ -12,4 +12,7 @@ class AdminResponse (TemplateResponse):
     
 def valid_choices (choices):
   return [c[0] for c in choices]
+  
+def static_path (path):
+  return LS_STATIC + path
   

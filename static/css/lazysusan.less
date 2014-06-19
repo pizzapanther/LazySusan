@@ -29,6 +29,10 @@ body {
   }
 }
 
+.clickme {
+  cursor: pointer;
+}
+
 .form-group {
   &.required {
     .control-label:after {
@@ -43,4 +47,27 @@ body {
 
 .form_view {
   margin: 20px 0;
+}
+
+.list_view {
+  margin: 20px 0;
+}
+
+ul.list-widget {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  
+  li {
+    margin: 0 0 10px 10px;
+    
+    a.rm {
+      display: inline-block;
+      color: @error;
+    }
+    
+    select {
+      display: inline-block;
+    }
+  }
 }

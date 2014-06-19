@@ -22,6 +22,9 @@ body {
   padding: 0;
   list-style-type: none;
 }
+.clickme {
+  cursor: pointer;
+}
 .form-group.required .control-label:after {
   content: " *";
 }
@@ -31,4 +34,22 @@ body {
 }
 .form_view {
   margin: 20px 0;
+}
+.list_view {
+  margin: 20px 0;
+}
+ul.list-widget {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+ul.list-widget li {
+  margin: 0 0 10px 10px;
+}
+ul.list-widget li a.rm {
+  display: inline-block;
+  color: #a94442;
+}
+ul.list-widget li select {
+  display: inline-block;
 }

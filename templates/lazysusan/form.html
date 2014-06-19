@@ -1,8 +1,15 @@
 {% extends "lazysusan/base.html" %}
+{% block head %}
+<script type="text/javascript" src="{{ LS_STATIC }}js/form-ctrl.js"></script>
+<!-- Form Media -->
+{{ form.media }}
+{% endblock %}
 {% block content %}
-<div class="container">
+<div class="container" id="FormCtrl" ng-controller="FormCtrl">
   <div class="row">
     <div class="col-md-8 col-xs-12 form_view">
+      <h1>{{ title }}</h1>
+      <hr>
       <form role="form" method="POST" action="./">
         {% csrf_token %}
         {% for field in form.visible_fields %}
@@ -16,7 +23,7 @@
         {% for hidden in form.hidden_fields %}
         {{ hidden }}
         {% endfor %}
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">{{ action }}</button>
       </form>
     </div>
   </div>

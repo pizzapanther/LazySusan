@@ -1,9 +1,15 @@
 import re
 
+from django import http
+from django.core.urlresolvers import reverse
+
 from .utils import AdminResponse
 from .forms import generate_form
+from .pagination import pagination
 
 class Admin (object):
+  list_display = []
+  
   def __init__ (self, app):
     self.app = app
     
@@ -67,22 +73,68 @@ class Admin (object):
   def list_urlkey (self):
     return ":".join([self.app.site.name, self.app.slug, self.slug, 'list'])
     
+  def queryset (self, request):
+    return self.model.query()
+    
+  @pagination('results')
   def list_view (self, request):
+    qs = self.queryset(request)
+    
     c = {
       'title': self.plural,
+      'results': qs,
+      'list_fields': self.list_fields(request),
+      'list_field_names': self.list_field_names(request),
     }
+    
     return AdminResponse(self.app.site, request, 'lazysusan/list.html', c)
     
-  def add_view (self, request):
+  def list_field_names (self, request):
+    ret = []
+    mockup = self.get_form(request)()
+    
+    for f in self.list_fields(request):
+      if f == '__unicode__':
+        ret.append(self.name)
+        
+      else:
+        if f in mockup:
+          ret.append(mockup[f].label.text)
+          
+        else:
+          ret.append(f)
+          
+    return ret
+    
+  def list_fields (self, request):
+    if self.list_display:
+      return self.list_display
+      
+    return ('__unicode__',)
+    
+  def get_form (self, request):
+    return self.form
+    
+  def form_view (self, request, action, instance=None):
     if request.POST:
-      form = self.form(request.POST)
+      form = self.get_form(request)(request.POST, instance=instance)
       
     else:
-      form = self.form()
+      form = self.get_form(request)(instance=instance)
       
+    if request.POST:
+      if form.is_valid():
+        form.save()
+        return http.HttpResponseRedirect(reverse(self.list_urlkey()))
+        
     c = {
-      'title': 'Add ' + self.name,
+      'title': action + ' ' + self.name,
+      'action': action,
+      'ngApp': 'lsform',
       'form': form,
     }
     return AdminResponse(self.app.site, request, 'lazysusan/form.html', c)
+    
+  def add_view (self, request):
+    return self.form_view(request, 'Add')
     

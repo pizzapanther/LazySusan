@@ -1,16 +1,16 @@
+import types
 import inspect
 
 from django import forms
+from django.forms.widgets import MediaDefiningClass
 
 from collections import OrderedDict
 
 from .settings import LS_FORM_MAP
+from .widgets import ListWidget
+from .utils import static_path
+import LazySusan.fields
 
-class RepeatedField (forms.Field):
-  def __init__ (self, repeat_field, *args, **kwargs):
-    self.repeat_field = repeat_field
-    super(RepeatedField, self).__init__(*args, **kwargs)
-    
 def translate_fields (model, fields, choices, overrides):
   field_dict = OrderedDict()
   
@@ -34,8 +34,10 @@ def translate_fields (model, fields, choices, overrides):
       kwargs['choices'] = choices[f]
       
     elif db_property.__class__.__name__ in LS_FORM_MAP:
-      field = getattr(forms, LS_FORM_MAP[db_property.__class__.__name__])
-      
+      field = LS_FORM_MAP[db_property.__class__.__name__]
+      if type(field) in types.StringTypes:
+        field = getattr(LazySusan.fields, field)
+        
     elif field is None:
       field = forms.CharField
       
@@ -44,7 +46,7 @@ def translate_fields (model, fields, choices, overrides):
       kwargs['required'] = False
       kwargs = {'repeat_field': field(**kwargs)}
       kwargs['required'] = db_property._required
-      field = RepeatedField
+      field = LazySusan.fields.RepeatedField
       
     field_dict[f] = field(**kwargs)
     
@@ -56,18 +58,17 @@ class BootstrapFormMixin (object):
     for myField in self.fields:
       self.fields[myField].widget.attrs['class'] = 'form-control'
       
-class ModelFormBase (BootstrapFormMixin, forms.BaseForm):
-  required_css_class = 'required'
-  
-class ModelFormMeta (type):
+class ModelFormMeta (MediaDefiningClass):
   def __new__ (metaname, classname, baseclasses, attrs):
     new_class = super(ModelFormMeta, metaname).__new__(metaname, classname, baseclasses, attrs)
     
-    if baseclasses == (ModelFormBase,):
+    meta = getattr(new_class, 'Meta', None)
+    if meta is None:
       return new_class
       
-    choices = getattr(new_class.Meta, 'choices', {})
-    overrides = getattr(new_class.Meta, 'field_overrides', {})
+    meta = getattr(new_class, 'Meta', None)
+    choices = getattr(meta, 'choices', {})
+    overrides = getattr(meta, 'field_overrides', {})
     
     new_class.base_fields = translate_fields(
       new_class.Meta.model,
@@ -78,11 +79,39 @@ class ModelFormMeta (type):
     
     return new_class
     
-class ModelForm (ModelFormBase):
+class ModelForm (forms.BaseForm):
   __metaclass__ = ModelFormMeta
   
+  def __init__ (self, *args, **kwargs):
+    self.instance = None
+    if 'instance' in kwargs:
+      self.instance = kwargs['instance']
+      del kwargs['instance']
+      
+    super(ModelForm, self).__init__(*args, **kwargs)
+    
+  def save (self, commit=True):
+    if self.instance:
+      for f in self.Meta.fields:
+        setattr(self.instance, f, self.cleaned_data[f])
+        
+    else:
+      kwargs = {}
+      for f in self.Meta.fields:
+        kwargs[f] = self.cleaned_data[f]
+        
+      self.instance = self.Meta.model(**kwargs)
+      
+    if commit:
+      self.instance.put()
+      
+    return self.instance
+    
+class AdminModelForm (BootstrapFormMixin, ModelForm):
+  required_css_class = 'required'
+  
 def generate_form (m, f, c={}, o={}):
-  class F (ModelForm):
+  class F (AdminModelForm):
     class Meta:
       model = m
       fields = f
