@@ -2,7 +2,9 @@ from django import forms
 
 from google.appengine.api import users
 
-from .widgets import ListWidget
+import pytz
+
+from .widgets import ListWidget, DateTimeWidget
 
 class RepeatedField (forms.Field):
   widget = ListWidget
@@ -43,4 +45,17 @@ class UserField (forms.EmailField):
       return None
       
     return super(UserField, self).to_python(value)
+    
+class DateTimeField (forms.DateTimeField):
+  widget = DateTimeWidget
+  
+  def to_python (self, value):
+    dt = super(DateTimeField, self).to_python(value)
+    if dt:
+      if dt.tzinfo.zone != 'UTC':
+        dt = dt.astimezone(pytz.utc)
+        
+      dt = dt.replace(tzinfo=None)
+      
+    return dt
     

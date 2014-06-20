@@ -1,0 +1,9 @@
+<ul class="pagination pull-right">
+  {% if paginator.has_previous %}
+  <li><a href="./{{ paginator.prev_qs|safe }}">&laquo; Prev</a></li>
+  {% endif %}
+  <li><a class="text"><em>Page {{ paginator.number }} of {{ paginator.total_pages }}</em></a></li>
+  {% if paginator.has_next %}
+  <li><a href="./{{ paginator.next_qs|safe }}">Next &raquo;</a></li>
+  {% endif %}
+</ul>

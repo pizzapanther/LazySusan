@@ -6,8 +6,6 @@ body {
 }
 
 .app_list {
-  border: 1px solid @borderColor;
-  border-radius: 10px;
   margin: 20px 0;
   padding: 0;
   
@@ -29,6 +27,25 @@ body {
   }
 }
 
+.app {
+  border: 1px solid @borderColor;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+a.text, .pagination>li>a.text, .pagination>li>a.text:hover {
+  color: @fg;
+  background-color: transparent;
+}
+
+h1 {
+  font-size: 32px;
+}
+
+ul.pagination {
+  margin: 0;
+}
+
 .clickme {
   cursor: pointer;
 }
@@ -43,14 +60,49 @@ body {
   input, select {
     max-width: 450px;
   }
+  
+  .input-group {
+    max-width: 450px;
+    
+    input, select {
+      max-width: 100%;
+    }
+  }
 }
 
 .form_view {
   margin: 20px 0;
+  
+  .help {
+    font-style: italic;
+    font-size: 75%;
+    padding: 0 0 0 10px;
+  }
+  
+  .btn {
+    margin-right: 10px;
+  }
 }
 
 .list_view {
   margin: 20px 0;
+  
+  h1 {
+    margin: 0;
+    
+    em {
+      padding: 0 0;
+      font-size: 45%;
+    }
+  }
+  
+  hr {
+    margin: 10px 0 10px 0;
+  }
+  
+  table {
+    font-size: 90%;
+  }
 }
 
 ul.list-widget {
@@ -66,7 +118,7 @@ ul.list-widget {
       color: @error;
     }
     
-    select {
+    select, input {
       display: inline-block;
     }
   }

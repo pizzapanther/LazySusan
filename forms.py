@@ -11,12 +11,16 @@ from .widgets import ListWidget
 from .utils import static_path
 import LazySusan.fields
 
-def translate_fields (model, fields, choices, overrides):
+def translate_fields (model, fields, choices, overrides, help_text, structured):
   field_dict = OrderedDict()
   
   for f in fields:
     field = None
     
+    if f in structured:
+      field_dict[f] = structured[f]()
+      continue
+      
     if f in overrides:
       if inspect.isclass(overrides[f]):
         field = overrides[f]
@@ -40,6 +44,9 @@ def translate_fields (model, fields, choices, overrides):
         
     elif field is None:
       field = forms.CharField
+      
+    if f in help_text:
+      kwargs['help_text'] = help_text[f]
       
     kwargs['required'] = db_property._required
     if db_property._repeated:
@@ -69,12 +76,16 @@ class ModelFormMeta (MediaDefiningClass):
     meta = getattr(new_class, 'Meta', None)
     choices = getattr(meta, 'choices', {})
     overrides = getattr(meta, 'field_overrides', {})
+    help_text = getattr(meta, 'help_text', {})
+    structured = getattr(meta, 'structured', {})
     
     new_class.base_fields = translate_fields(
       new_class.Meta.model,
       new_class.Meta.fields,
       choices,
-      overrides
+      overrides,
+      help_text,
+      structured,
     )
     
     return new_class
@@ -87,6 +98,19 @@ class ModelForm (forms.BaseForm):
     if 'instance' in kwargs:
       self.instance = kwargs['instance']
       del kwargs['instance']
+      
+    initial = {}
+    if 'initial' in kwargs:
+      initial = kwargs['initial']
+      
+    if self.instance:
+      instance_initial = {}
+      for f in self.Meta.fields:
+        instance_initial[f] = getattr(self.instance, f)
+        
+      instance_initial.update(initial)
+      
+      kwargs['initial'] = instance_initial
       
     super(ModelForm, self).__init__(*args, **kwargs)
     
@@ -110,13 +134,15 @@ class ModelForm (forms.BaseForm):
 class AdminModelForm (BootstrapFormMixin, ModelForm):
   required_css_class = 'required'
   
-def generate_form (m, f, c={}, o={}):
+def generate_form (m, f, c={}, o={}, h={}, s={}):
   class F (AdminModelForm):
     class Meta:
       model = m
       fields = f
       choices = c
       field_overrides = o
+      help_text = h
+      structured = s
       
   return F
   

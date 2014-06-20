@@ -13,6 +13,7 @@ LS_FORM_MAP_DEFAULT = {
   'StringProperty': forms.CharField,
   'IntegerProperty': forms.IntegerField,
   'UserProperty': 'UserField',
+  'DateTimeProperty': 'DateTimeField',
 }
 
 LS_FORM_MAP = getattr(settings, 'LS_FORM_MAP', LS_FORM_MAP_DEFAULT)

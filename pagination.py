@@ -1,28 +1,50 @@
+import urllib
+
 from django import http
 
 from google.appengine.ext.db import Query
+from google.appengine.datastore.datastore_query import Cursor
 
 from .settings import LS_PER_PAGE
 
 class Page (object):
-  def __init__ (self, objects, start_cursor, next_cursor, more):
-    self.objects = objects
-    self.start_cursor = start_cursor
-    self.next_cursor = next_cursor
-    self.more = more
+  def __init__ (self, query, per_page, page):
+    self.objects = []
+    self.query = query
+    self.per_page = per_page
     
+    try:
+      self.page = int(page)
+      
+    except:
+      self.page = 1
+      
+    else:
+      if self.page < 1:
+        self.page = 1
+        
+    self.offset = (self.page - 1) * self.per_page
+    self.objects = self.query.fetch(self.per_page, offset=self.offset)
+    self.total = self.query.count()
+    self.total_pages = self.total / self.per_page
+    
+    if self.total % self.per_page > 0:
+      self.total_pages += 1
+      
   def has_previous (self):
-    if self.start_cursor:
+    if self.page > 1:
       return True
       
     return False
     
   def has_next (self):
-    if self.more:
+    if self.page + 1 <= self.total_pages:
       return True
       
     return False
     
+import logging
+
 class LSPaginator (object):
   def __init__ (self, request, query, per_page, page_param='page'):
     self.request = request
@@ -30,9 +52,8 @@ class LSPaginator (object):
     self.per_page = per_page
     self.query = query
     
-  def page (self, cursor=None):
-    objects, next_cursor, more = self.query.fetch_page(self.per_page, start_cursor=cursor)
-    return Page(objects, cursor, next_cursor, more)
+  def page (self, p):
+    return Page(self.query, self.per_page, p)
     
   def current (self):
     if not hasattr(self, '_current'):
@@ -44,45 +65,49 @@ class LSPaginator (object):
   def current_list (self):
     return self.current().objects
     
+  def number (self):
+    return self.current().page
+    
+  def total_pages (self):
+    return self.current().total_pages
+    
+  def total (self):
+    return self.current().total
+    
   def has_previous (self):
     return self.current().has_previous()
     
   def has_next (self):
     return self.current().has_next()
     
-  def previous_qs (self):
-    qs = self.request.META['QUERY_STRING']
-    cs = '%s=%d' % (self.page_param, self.number())
-    if self.has_previous():
-      ps = '%s=%d' % (self.page_param, self.number() - 1)
-      if qs:
-        if cs in qs:
-          qs = qs.replace(cs, ps)
+  def generate_query_string (self, qs=''):
+    for key, value in self.request.GET.dict().items():
+      if key != self.page_param:
+        if qs:
+          qs += '&'
           
-        else:
-          qs = qs + '&' + ps
-          
-      else:
-        qs = ps
+        qs += "{}={}".format(key, urllib.quote(value))
         
+    if qs:
+      qs = '?' + qs
+      
+    return qs
+    
+  def prev_qs (self):
+    if self.current().page - 1 == 1:
+      qs = ''
+      
+    else:
+      qs = '{}={}'.format(self.page_param, self.current().page - 1)
+      
+    qs = self.generate_query_string(qs)
+    
     return qs
     
   def next_qs (self):
-    qs = self.request.META['QUERY_STRING']
-    cs = '%s=%d' % (self.page_param, self.number())
-    if self.has_next():
-      ps = '%s=%d' % (self.page_param, self.number() + 1)
-      
-      if qs:
-        if cs in qs:
-          qs = qs.replace(cs, ps)
-          
-        else:
-          qs = qs + '&' + ps
-          
-      else:
-        qs = ps
-        
+    qs = '{}={}'.format(self.page_param, self.current().page + 1)
+    qs = self.generate_query_string(qs)
+    
     return qs
     
 def pagination (query_var, per_page=LS_PER_PAGE, page_param='page', output_var='paginator'):

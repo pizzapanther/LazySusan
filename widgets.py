@@ -32,3 +32,24 @@ class ListWidget (forms.Widget):
   class Media:
     js = (static_path('js/list-widget-directive.js'),)
     
+class DateTimeWidget (forms.DateTimeInput):
+  def __init__ (self, *args, **kwargs):
+    super(DateTimeWidget, self).__init__(*args, **kwargs)
+    self.format = '%m/%d/%Y %H:%M'
+    
+  def render (self, name, value, attrs=None):
+    if attrs is None:
+      attrs = {'id': 'id_' + name}
+      
+    html = super(DateTimeWidget, self).render(name, value, attrs=attrs)
+    html += """<script type="text/javascript">$(document).ready(function () {{ $('#{id}').datetimepicker({{autoclose: true, format: 'mm/dd/yyyy hh:ii'}}); }});</script>""".format(**attrs)
+    
+    return mark_safe(html)
+    
+  class Media:
+    css = {
+      'all': (static_path('lib/datetimepicker/css/bootstrap-datetimepicker.min.css'),)
+    }
+    
+    js = (static_path('lib/moment.min.js'), static_path('lib/datetimepicker/js/bootstrap-datetimepicker.min.js'))
+    

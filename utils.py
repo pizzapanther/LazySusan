@@ -1,3 +1,5 @@
+import re
+
 from django.template.response import TemplateResponse
 
 from .settings import ADMIN_CONTEXT, LS_STATIC
@@ -15,4 +17,32 @@ def valid_choices (choices):
   
 def static_path (path):
   return LS_STATIC + path
+  
+def uncamel (text):
+  return re.sub("([a-z])([A-Z])","\g<1> \g<2>", text)
+  
+def unslugify (text):
+  return text.replace('-', ' ').replace('_', ' ').title()
+  
+def cached_method (target):
+  def wrapper(*args, **kwargs):
+    obj = args[0]
+    name = '_' + target.__name__
+    
+    if not hasattr(obj, name):
+      value = target(*args, **kwargs)
+      setattr(obj, name, value)
+      
+    return getattr(obj, name)
+    
+  return wrapper
+  
+def get_name (instance):
+  if hasattr(instance, '__unicode__'):
+    return instance.__unicode__()
+    
+  elif hasattr(instance, 'key'):
+    return instance.key.urlsafe()
+    
+  return 'Name not found'
   
