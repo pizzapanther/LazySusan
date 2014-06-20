@@ -9,3 +9,7 @@ def get_values (obj, context):
   
   return admin.object_values(obj, fields)
   
+@register.filter
+def get_dict_value (d, key):
+  return d[key]
+  

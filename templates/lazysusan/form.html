@@ -1,4 +1,4 @@
-{% extends "lazysusan/base.html" %}
+{% extends "lazysusan/base.html" %}{% load lstags %}
 {% block head %}
 <script type="text/javascript" src="{{ LS_STATIC }}js/form-ctrl.js"></script>
 
@@ -15,14 +15,24 @@
         {% csrf_token %}
         {% for field in form.visible_fields %}
         {% if field.field.is_structured %}
-        field
+        <fieldset>
+          <legend>{{ field.field.plural }}:</legend>
+          {% with formset=form.formsets|get_dict_value:field.field.prefix %}
+          {{ formset.management_form }}
+          {% for fsetform in formset %}
+          {{ fsetform.id }}
+          {% for fsetfield in fsetform.visible_fields %}
+          {% include "lazysusan/form.field.html" with field=fsetfield %}
+          {% endfor %}
+          {% for hidden in fsetform.hidden_fields %}
+          {{ hidden }}
+          {% endfor %}
+          <hr>
+          {% endfor %}
+          {% endwith %}
+        </fieldset>
         {% else %}
-        <div class="form-group{% if field.errors %} has-error{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}">
-          <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {% if field.help_text %}<span class="help">({{ field.help_text }})</span>{% endif %}
-          {{ field }}
-          {% if field.errors %}<div class="text-danger">{{ field.errors.0 }}</div>{% endif %}
-        </div>
+        {% include "lazysusan/form.field.html" %}
         {% endif %}
         {% endfor %}
         {% for hidden in form.hidden_fields %}

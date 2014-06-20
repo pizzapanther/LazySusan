@@ -3,6 +3,8 @@ import inspect
 
 from django import forms
 from django.forms.widgets import MediaDefiningClass
+from django.forms.fields import Field, FileField
+from django.core.exceptions import ValidationError
 
 from collections import OrderedDict
 
@@ -18,7 +20,7 @@ def translate_fields (model, fields, choices, overrides, help_text, structured):
     field = None
     
     if f in structured:
-      field_dict[f] = structured[f]()
+      field_dict[f] = structured[f](prefix=f)
       continue
       
     if f in overrides:
@@ -49,6 +51,10 @@ def translate_fields (model, fields, choices, overrides, help_text, structured):
       kwargs['help_text'] = help_text[f]
       
     kwargs['required'] = db_property._required
+    
+    if db_property._default is not None:
+      kwargs['initial'] = db_property._default
+      
     if db_property._repeated:
       kwargs['required'] = False
       kwargs = {'repeat_field': field(**kwargs)}
@@ -56,6 +62,7 @@ def translate_fields (model, fields, choices, overrides, help_text, structured):
       field = LazySusan.fields.RepeatedField
       
     field_dict[f] = field(**kwargs)
+    field_dict[f].is_structured = False
     
   return field_dict
   
@@ -63,8 +70,12 @@ class BootstrapFormMixin (object):
   def __init__ (self, *args, **kwargs):
     super(BootstrapFormMixin, self).__init__(*args, **kwargs)
     for myField in self.fields:
-      self.fields[myField].widget.attrs['class'] = 'form-control'
-      
+      if isinstance(self.fields[myField].widget, forms.CheckboxInput):
+        self.fields[myField].widget.is_checkbox = True
+        
+      else:
+        self.fields[myField].widget.attrs['class'] = 'form-control'
+        
 class ModelFormMeta (MediaDefiningClass):
   def __new__ (metaname, classname, baseclasses, attrs):
     new_class = super(ModelFormMeta, metaname).__new__(metaname, classname, baseclasses, attrs)
@@ -114,9 +125,60 @@ class ModelForm (forms.BaseForm):
       
     super(ModelForm, self).__init__(*args, **kwargs)
     
+    self.formsets = {}
+    for f in self:
+      if f.field.is_structured:
+        initial = None
+        if 'initial' in kwargs:
+          if f.field.prefix in kwargs['initial']:
+            initial = kwargs['initial'][f.field.prefix]
+            
+        if len(self.data.keys()) > 0:
+          self.formsets[f.field.prefix] = f.field.formset(
+            self.data, self.files,
+            prefix=f.field.prefix,
+            initial=initial
+          )
+          
+        else:
+          self.formsets[f.field.prefix] = f.field.formset(prefix=f.field.prefix, initial=initial)
+          
+  def _clean_fields (self):
+    for name, field in self.fields.items():
+      value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
+      try:
+        if hasattr(field, 'is_structured') and field.is_structured:
+          value = []
+          if self.formsets[name].is_valid():
+            for form in self.formsets[name]:
+              if not form.cleaned_data['DELETE']:
+                value.append(form.save(commit=False))
+                
+        elif isinstance(field, FileField):
+          initial = self.initial.get(name, field.initial)
+          value = field.clean(value, initial)
+          
+        else:
+          value = field.clean(value)
+          
+        self.cleaned_data[name] = value
+        
+        if hasattr(self, 'clean_%s' % name):
+          value = getattr(self, 'clean_%s' % name)()
+          self.cleaned_data[name] = value
+          
+      except ValidationError as e:
+        self._errors[name] = self.error_class(e.messages)
+        if name in self.cleaned_data:
+          del self.cleaned_data[name]
+          
   def save (self, commit=True):
+    import logging
     if self.instance:
       for f in self.Meta.fields:
+        logging.info(f)
+        logging.info(self.cleaned_data[f])
+        
         setattr(self.instance, f, self.cleaned_data[f])
         
     else:
@@ -124,6 +186,7 @@ class ModelForm (forms.BaseForm):
       for f in self.Meta.fields:
         kwargs[f] = self.cleaned_data[f]
         
+      logging.info(kwargs)
       self.instance = self.Meta.model(**kwargs)
       
     if commit:

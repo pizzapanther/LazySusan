@@ -3,6 +3,7 @@ import types
 
 from django import http
 from django import forms
+from django.forms.formsets import formset_factory
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 
@@ -208,10 +209,18 @@ class Admin (object):
       
     return self.form_view(request, 'Update', instance)
     
+class StructuredMixin (object):
+  def get (self, name, initial):
+    data = getattr(self, name, initial)
+    if data is None:
+      data = initial
+      
+    return data
+    
 class StructuredAdmin (Admin):
   is_structured = True
   
-  def __init__ (self):
+  def __init__ (self, prefix):
     self.label = None
     self.help_text = None
     self.widget = forms.TextInput()
@@ -220,7 +229,11 @@ class StructuredAdmin (Admin):
     self.localize = False
     self.initial = None
     
+    self.prefix = prefix
+    
     super(StructuredAdmin, self).__init__(None)
+    
+    self.formset = formset_factory(self.form, can_delete=True)
     
   def prepare_value (self, data):
     return data

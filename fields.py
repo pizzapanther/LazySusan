@@ -1,6 +1,7 @@
 from django import forms
 
 from google.appengine.api import users
+from google.appengine.ext import ndb
 
 import pytz
 
@@ -35,11 +36,6 @@ class UserField (forms.EmailField):
   def to_python (self, value, convert=False):
     if convert:
       if value:
-        import logging
-        
-        logging.info(value)
-        logging.info(users.User(value))
-        
         return users.User(value)
         
       return None
@@ -58,4 +54,11 @@ class DateTimeField (forms.DateTimeField):
       dt = dt.replace(tzinfo=None)
       
     return dt
+    
+class KeyField (forms.Field):
+  def to_python (self, value):
+    if value:
+      return ndb.Key(urlsafe=value)
+      
+    return None
     
