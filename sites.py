@@ -1,5 +1,6 @@
 from django.utils.importlib import import_module
 
+from .auth import staff_required
 from .utils import AdminResponse
 
 class AdminSite (object):
@@ -33,7 +34,7 @@ class AdminSite (object):
     from django.conf.urls import patterns, url, include
     
     urlpatterns = patterns('',
-      url(r'^$', self.index, name='index'),
+      url(r'^$', self.index_view, name='index'),
     )
     
     for app in self.apps:
@@ -41,6 +42,7 @@ class AdminSite (object):
       
     return urlpatterns
     
-  def index (self, request):
+  @staff_required
+  def index_view (self, request):
     return AdminResponse(self, request, 'lazysusan/index.html', {})
     

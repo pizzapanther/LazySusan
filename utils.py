@@ -2,6 +2,8 @@ import re
 
 from django.template.response import TemplateResponse
 
+from google.appengine.api import users
+
 from .settings import ADMIN_CONTEXT, LS_STATIC
 
 class AdminResponse (TemplateResponse):
@@ -9,6 +11,7 @@ class AdminResponse (TemplateResponse):
     c = ADMIN_CONTEXT.copy()
     c.update(context)
     c['site'] = admin_site
+    c['logout_url'] = users.create_logout_url(request.get_full_path())
     
     super(AdminResponse, self).__init__(request, template, c, mimetype, status, content_type, current_app)
     

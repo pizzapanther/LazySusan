@@ -12,6 +12,7 @@ from google.appengine.ext import ndb
 from .utils import AdminResponse, uncamel, unslugify, cached_method, get_name
 from .forms import generate_form
 from .pagination import pagination
+from .auth import staff_required
 
 class Admin (object):
   list_display = []
@@ -88,6 +89,7 @@ class Admin (object):
   def queryset (self, request):
     return self.model.query()
     
+  @staff_required
   @pagination('results')
   def list_view (self, request):
     qs = self.queryset(request)
@@ -190,9 +192,11 @@ class Admin (object):
       
     return AdminResponse(self.app.site, request, 'lazysusan/form.html', c)
     
+  @staff_required
   def add_view (self, request):
     return self.form_view(request, 'Add')
     
+  @staff_required
   def edit_view (self, request, key):
     try:
       key = ndb.Key(urlsafe=key)

@@ -30,3 +30,5 @@ ADMIN_CONTEXT = {
   'LS_STATIC': LS_STATIC,
   'LS_DEV': LS_DEV,
 }
+
+LS_AUTHENTICATOR = getattr(settings, 'LS_AUTHENTICATOR', None)

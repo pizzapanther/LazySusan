@@ -1,4 +1,5 @@
 from .utils import AdminResponse
+from .auth import staff_required
 
 class AppBase (object):
   name = None
@@ -31,6 +32,7 @@ class AppBase (object):
       
     return urlpatterns
     
+  @staff_required
   def index_view (self, request):
     c = {
       'title': self.name,
