@@ -4,6 +4,7 @@ from django import http
 
 from google.appengine.ext.db import Query
 from google.appengine.datastore.datastore_query import Cursor
+from google.appengine.ext import db
 
 from .settings import LS_PER_PAGE
 
@@ -24,7 +25,7 @@ class Page (object):
         self.page = 1
         
     self.offset = (self.page - 1) * self.per_page
-    self.objects = self.query.fetch(self.per_page, offset=self.offset)
+    self.objects = self.query.fetch(self.per_page, offset=self.offset, read_policy=db.STRONG_CONSISTENCY)
     self.total = self.query.count()
     self.total_pages = self.total / self.per_page
     
