@@ -6,20 +6,38 @@ var SearchModalInstanceCtrl = function ($scope, $http, $modalInstance, kind, wid
     results: [],
     headers: [],
     search: '',
-    message: ''
+    message: '',
+    page: 1,
+    total_pages: 0,
+    has_next: false,
+    has_prev: false
   };
   
   $scope.cancel = function () {
     $modalInstance.dismiss('cancel');
   };
   
+  $scope.prev_page = function () {
+    $scope.lookup.page = $scope.lookup.page - 1;
+    $scope.submit();
+  };
+  
+  $scope.next_page = function () {
+    $scope.lookup.page = $scope.lookup.page + 1;
+    $scope.submit();
+  };
+  
   $scope.submit = function () {
-    $http.post(KIND_LOOKUP_URL, {search: $scope.lookup.search, kind: $scope.lookup.kind})
+    $http.post(KIND_LOOKUP_URL + '?page=' + $scope.lookup.page, {search: $scope.lookup.search, kind: $scope.lookup.kind})
       .success(function(data, status, headers, config) {
           if (data.status == 'OK') {
             $scope.lookup.message = '';
             $scope.lookup.results = data.results;
             $scope.lookup.headers = data.headers;
+            $scope.lookup.page = data.page;
+            $scope.lookup.total_pages = data.total_pages;
+            $scope.lookup.has_next = data.has_next;
+            $scope.lookup.has_prev = data.has_prev;
           }
           
           else {
@@ -31,8 +49,6 @@ var SearchModalInstanceCtrl = function ($scope, $http, $modalInstance, kind, wid
   $scope.select = function (key, name) {
     $("#name_" + $scope.lookup.widget).html(name);
     $("#" + $scope.lookup.widget).val(key);
-    console.log(key);
-    console.log(name);
     
     $modalInstance.dismiss('selected');
   };

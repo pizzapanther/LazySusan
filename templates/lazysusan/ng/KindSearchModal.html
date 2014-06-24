@@ -4,11 +4,17 @@
 </div>
 <div class="modal-body">
   <form class="form-inline" role="form" ng-submit="submit()">
-    <div class="form-group">
+    <ul class="pagination pull-right">
+      <li ng-show="lookup.has_prev"><a class="clickme" ng-click="prev_page()">&laquo; Prev</a></li>
+      <li><a class="text"><em>Page {{ lookup.page }} of {{ lookup.total_pages }}</em></a></li>
+      <li ng-show="lookup.has_next"><a class="clickme" ng-click="next_page()">Next &raquo;</a></li>
+    </ul>
+    <!--<div class="form-group">
       <label class="sr-only" for="lookup_search">Search</label>
       <input type="text" class="form-control" id="lookup_search" ng-model="lookup.search">
     </div>
-    <button type="submit" class="btn btn-default">Search</button>
+    <button type="submit" class="btn btn-default">Search</button>-->
+    <div class="clearfix"></div>
   </form>
   <div class="table-wrapper">
     <table class="table table-striped table-hover" ng-show="lookup.results.length">
