@@ -11,8 +11,11 @@ class AppBase (object):
     self.admins_init = []
     
     for admin in self.admins:
-      self.admins_init.append(admin(self))
-      
+      a = admin(self)
+      self.admins_init.append(a)
+      if a.lookup:
+        self.site.add_lookup(a)
+        
   def index_urlkey (self):
     return ":".join([self.site.name, self.slug, 'index'])
     

@@ -31,4 +31,4 @@ ADMIN_CONTEXT = {
   'LS_DEV': LS_DEV,
 }
 
-LS_AUTHENTICATOR = getattr(settings, 'LS_AUTHENTICATOR', None)
+LS_AUTHENTICATOR = getattr(settings, 'LS_AUTHENTICATOR', 'LazySusan.utils.gae_admin_required')

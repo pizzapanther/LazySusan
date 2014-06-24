@@ -1,5 +1,6 @@
 import re
 
+from django import http
 from django.template.response import TemplateResponse
 
 from google.appengine.api import users
@@ -48,4 +49,14 @@ def get_name (instance):
     return instance.key.urlsafe()
     
   return 'Name not found'
+  
+def gae_admin_required (request):
+  user = users.get_current_user()
+  if user:
+    if users.is_current_user_admin():
+      return True, None
+      
+    return False, http.HttpResponseForbidden('You do not have access to this area.', content_type="text/plain")
+    
+  return False, users.create_login_url(request.get_full_path())
   

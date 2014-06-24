@@ -5,7 +5,7 @@ from google.appengine.ext import ndb
 
 import pytz
 
-from .widgets import ListWidget, DateTimeWidget
+from .widgets import ListWidget, DateTimeWidget, KeyWidget
 
 class RepeatedField (forms.Field):
   widget = ListWidget
@@ -56,6 +56,24 @@ class DateTimeField (forms.DateTimeField):
     return dt
     
 class KeyField (forms.Field):
+  widget = KeyWidget
+  
+  def __init__ (self, *args, **kwargs):
+    self.kind = kwargs['kind']
+    del kwargs['kind']
+    
+    if 'widget' in kwargs:
+      widget = kwargs['widget']
+      
+    else:
+      widget = self.widget
+      
+    if isinstance(widget, type):
+      widget = widget(kind=self.kind)
+      
+    kwargs['widget'] = widget
+    super(KeyField, self).__init__(*args, **kwargs)
+    
   def to_python (self, value):
     if value:
       return ndb.Key(urlsafe=value)

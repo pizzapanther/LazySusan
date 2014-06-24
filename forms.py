@@ -2,7 +2,7 @@ import types
 import inspect
 
 from django import forms
-from django.forms.widgets import MediaDefiningClass
+from django.forms.widgets import Media, MediaDefiningClass
 from django.forms.fields import Field, FileField
 from django.core.exceptions import ValidationError
 
@@ -57,6 +57,9 @@ def translate_fields (model, fields, choices, overrides, help_text, structured):
     
     if db_property._default is not None:
       kwargs['initial'] = db_property._default
+      
+    if hasattr(db_property, '_kind'):
+      kwargs['kind'] = db_property._kind
       
     if db_property._repeated:
       kwargs['required'] = False
@@ -130,7 +133,7 @@ class ModelForm (forms.BaseForm):
     
     self.formsets = {}
     for f in self:
-      if f.field.is_structured:
+      if hasattr(f.field, 'is_structured') and f.field.is_structured:
         initial = None
         if 'initial' in kwargs:
           if f.field.prefix in kwargs['initial']:
@@ -196,6 +199,18 @@ class ModelForm (forms.BaseForm):
       self.instance.put()
       
     return self.instance
+    
+  @property
+  def media (self):
+    media = Media()
+    
+    for field in self.fields.values():
+      media = media + field.widget.media
+      
+      if hasattr(field, 'is_structured') and field.is_structured:
+        media = media + self.formsets[field.prefix].media
+        
+    return media
     
 class AdminModelForm (BootstrapFormMixin, ModelForm):
   required_css_class = 'required'

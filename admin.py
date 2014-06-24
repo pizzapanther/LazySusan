@@ -16,6 +16,8 @@ from .auth import staff_required
 
 class Admin (object):
   list_display = []
+  lookup = False
+  lookup_list_display = []
   
   def __init__ (self, app):
     self.app = app
@@ -86,7 +88,9 @@ class Admin (object):
   def list_urlkey (self):
     return ":".join([self.app.site.name, self.app.slug, self.slug, 'list'])
     
-  def queryset (self, request):
+  def queryset (self, request, lookup=False):
+    from users.models import Subber
+    return Subber.query()
     return self.model.query()
     
   @staff_required
@@ -104,11 +108,11 @@ class Admin (object):
     
     return AdminResponse(self.app.site, request, 'lazysusan/list.html', c)
     
-  def list_field_names (self, request):
+  def list_field_names (self, request, lookup=False):
     ret = []
     form = self.get_form(request)
     
-    for f in self.list_fields(request):
+    for f in self.list_fields(request, lookup=lookup):
       if f == '__unicode__':
         ret.append(self.name)
         
@@ -125,10 +129,15 @@ class Admin (object):
             
     return ret
     
-  def list_fields (self, request):
-    if self.list_display:
-      return self.list_display
-      
+  def list_fields (self, request, lookup=False):
+    if lookup:
+      if self.lookup_list_display:
+        return self.lookup_list_display
+        
+    else:
+      if self.list_display:
+        return self.list_display
+        
     return ('__unicode__',)
     
   @cached_method
@@ -146,7 +155,9 @@ class Admin (object):
   def object_values (self, obj, fields):
     ret = []
     for field in fields:
-      attr = getattr(obj, field)
+      import logging
+      logging.info(dir(obj))
+      attr = getattr(obj, field, None)
       if type(attr) == types.MethodType:
         if getattr(attr, 'is_safe', False):
           attr = mark_safe(attr())

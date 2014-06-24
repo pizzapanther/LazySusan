@@ -1,6 +1,8 @@
 import urllib
+import logging
 
 from django import http
+from django.template.response import TemplateResponse
 
 from google.appengine.ext.db import Query
 from google.appengine.datastore.datastore_query import Cursor
@@ -44,8 +46,6 @@ class Page (object):
       
     return False
     
-import logging
-
 class LSPaginator (object):
   def __init__ (self, request, query, per_page, page_param='page'):
     self.request = request
@@ -121,13 +121,14 @@ def pagination (query_var, per_page=LS_PER_PAGE, page_param='page', output_var='
           break
         
       tpl_response = target(*args, **kwargs)
-      tpl_response.context_data[output_var] = LSPaginator(
-                                                          request,
-                                                          tpl_response.context_data[query_var],
-                                                          per_page,
-                                                          page_param,
-                                                         )
-      
+      if isinstance(tpl_response, TemplateResponse):
+        tpl_response.context_data[output_var] = LSPaginator(
+                                                            request,
+                                                            tpl_response.context_data[query_var],
+                                                            per_page,
+                                                            page_param,
+                                                           )
+        
       return tpl_response
       
     return wrapper

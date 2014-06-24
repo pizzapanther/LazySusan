@@ -10,15 +10,22 @@ body {
   border-bottom: 1px solid #cccccc;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  padding: 5px 20px 5px 20px;
+  padding: 10px 20px 10px 20px;
   font-weight: bold;
   font-size: 2.0rem;
   background-color: #f9f9f9;
 }
 .app_list ul {
-  margin: 10px 20px;
+  margin: 0;
   padding: 0;
   list-style-type: none;
+}
+.app_list ul li {
+  padding: 5px 20px;
+  border-bottom: 1px solid #cccccc;
+}
+.app_list ul li:last-child {
+  border-bottom: 0;
 }
 .app {
   border: 1px solid #cccccc;
@@ -96,4 +103,16 @@ ul.list-widget li a.rm {
 ul.list-widget li select,
 ul.list-widget li input {
   display: inline-block;
+}
+.key-widget input {
+  float: left;
+}
+.key-widget a {
+  display: block;
+  float: left;
+  margin: 0 5px;
+}
+.lookupModal div.table-wrapper {
+  max-height: 500px;
+  overflow: auto;
 }

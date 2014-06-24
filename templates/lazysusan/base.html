@@ -14,6 +14,12 @@
     <script src="{{ LS_STATIC }}lib/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     
     <script src="{{ LS_STATIC }}lib/ng/angular.min.js" type="text/javascript"></script>
+    <script src="{{ LS_STATIC }}lib/ng/angular-cookies.min.js" type="text/javascript"></script>
+    <script src="{{ LS_STATIC }}lib/ng/ui-bootstrap-tpls-0.11.0.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      NG_TEMPLATE_URL = '{% url "admin:ng-template" "-" %}';
+      KIND_LOOKUP_URL = '{% url "admin:kind-lookup" %}';
+    </script>
     {% block head %}{% endblock %}
   </head>
   <body>

@@ -5,6 +5,27 @@ from django.utils.safestring import mark_safe
 
 from .utils import static_path
 
+class KeyWidget (forms.TextInput):
+  class Media:
+    js = (static_path('js/key-widget-directive.js'),)
+    
+  def __init__ (self, *args, **kwargs):
+    self.kind = kwargs['kind']
+    del kwargs['kind']
+    super(KeyWidget, self).__init__(*args, **kwargs)
+    
+  def render (self, name, value, attrs=None):
+    if attrs is None:
+      attrs = {'id': 'id_' + name}
+      
+    html = '<div class="key-widget">'
+    html += super(KeyWidget, self).render(name, value, attrs=attrs)
+    html += '<key-lookup kind="{}" widget="{}"></key-lookup>'.format(self.kind, attrs['id'])
+    html += '<div class="clearfix"></div>'
+    html += '</div>'
+    
+    return mark_safe(html)
+    
 class ListWidget (forms.Widget):
   def __init__ (self, repeat_widget, *args, **kwargs):
     self.repeat_widget = repeat_widget
