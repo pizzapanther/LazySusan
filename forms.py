@@ -179,12 +179,8 @@ class ModelForm (forms.BaseForm):
           del self.cleaned_data[name]
           
   def save (self, commit=True):
-    import logging
     if self.instance:
       for f in self.Meta.fields:
-        logging.info(f)
-        logging.info(self.cleaned_data[f])
-        
         setattr(self.instance, f, self.cleaned_data[f])
         
     else:
@@ -192,7 +188,6 @@ class ModelForm (forms.BaseForm):
       for f in self.Meta.fields:
         kwargs[f] = self.cleaned_data[f]
         
-      logging.info(kwargs)
       self.instance = self.Meta.model(**kwargs)
       
     if commit:

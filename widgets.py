@@ -3,6 +3,8 @@ import json
 from django import forms
 from django.utils.safestring import mark_safe
 
+from google.appengine.ext import ndb
+
 from .utils import static_path
 
 class KeyWidget (forms.TextInput):
@@ -18,10 +20,19 @@ class KeyWidget (forms.TextInput):
     if attrs is None:
       attrs = {'id': 'id_' + name}
       
+    value_name = ''
+    v = None
+    if value:
+      v = value.urlsafe()
+      obj = value.get()
+      if obj:
+        value_name = unicode(obj)
+        
     html = '<div class="key-widget">'
-    html += super(KeyWidget, self).render(name, value, attrs=attrs)
+    html += super(KeyWidget, self).render(name, v, attrs=attrs)
     html += '<key-lookup kind="{}" widget="{}"></key-lookup>'.format(self.kind, attrs['id'])
     html += '<div class="clearfix"></div>'
+    html += '<div class="name" id="name_{}">{}</div>'.format(attrs['id'], value_name)
     html += '</div>'
     
     return mark_safe(html)

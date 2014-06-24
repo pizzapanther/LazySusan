@@ -2,7 +2,7 @@
   "status": "OK",
   "headers": [{% for name in list_field_names %}"{{ name|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
   "results": [{% for object in paginator.current_list %}
-    ["{{ object.key.urlsafe }}", "{{ object.uname }}", [{% for value in object|get_values:field_context %}"{{ value|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}]]{% if not forloop.last %}, {% endif %}{% endfor %}
+    ["{{ object.key.urlsafe }}", "{{ object }}", [{% for value in object|get_values:field_context %}"{{ value|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}]]{% if not forloop.last %}, {% endif %}{% endfor %}
   ],
   "total": {{ paginator.total }},
   "total_pages": {{ paginator.total_pages }}

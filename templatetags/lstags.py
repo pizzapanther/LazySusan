@@ -13,14 +13,3 @@ def get_values (obj, context):
 def get_dict_value (d, key):
   return d[key]
   
-@register.filter
-def uname (obj):
-  import logging
-  
-  logging.info('NARF')
-  logging.info(dir(obj))
-  try:
-    return obj.__unicode__()
-  except:
-    return obj
-    

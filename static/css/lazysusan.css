@@ -116,3 +116,6 @@ ul.list-widget li input {
   max-height: 500px;
   overflow: auto;
 }
+.lookupModal form {
+  margin: 0 0 20px 0;
+}

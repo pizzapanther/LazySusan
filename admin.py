@@ -89,8 +89,6 @@ class Admin (object):
     return ":".join([self.app.site.name, self.app.slug, self.slug, 'list'])
     
   def queryset (self, request, lookup=False):
-    from users.models import Subber
-    return Subber.query()
     return self.model.query()
     
   @staff_required
@@ -155,8 +153,6 @@ class Admin (object):
   def object_values (self, obj, fields):
     ret = []
     for field in fields:
-      import logging
-      logging.info(dir(obj))
       attr = getattr(obj, field, None)
       if type(attr) == types.MethodType:
         if getattr(attr, 'is_safe', False):

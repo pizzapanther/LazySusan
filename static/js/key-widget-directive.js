@@ -28,6 +28,15 @@ var SearchModalInstanceCtrl = function ($scope, $http, $modalInstance, kind, wid
       });
   };
   
+  $scope.select = function (key, name) {
+    $("#name_" + $scope.lookup.widget).html(name);
+    $("#" + $scope.lookup.widget).val(key);
+    console.log(key);
+    console.log(name);
+    
+    $modalInstance.dismiss('selected');
+  };
+  
   $scope.submit();
 };
 

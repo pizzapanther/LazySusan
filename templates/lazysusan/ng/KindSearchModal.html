@@ -10,12 +10,12 @@
     </div>
     <button type="submit" class="btn btn-default">Search</button>
   </form>
-  <hr>
   <div class="table-wrapper">
     <table class="table table-striped table-hover" ng-show="lookup.results.length">
       <tbody>
         <tr ng-repeat="row in lookup.results">
-          <td ng-repeat="cell in row">{{ cell }}</td>
+          <td><a class="clickme" ng-click="select(row[0], row[1])">Select &raquo;</a></td>
+          <td ng-repeat="cell in row[2]" ng-bind-html="cell"></td>
         </tr>
       </tbody>
     </table>
