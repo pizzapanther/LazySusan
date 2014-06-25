@@ -92,6 +92,9 @@ class Admin (object):
   def queryset (self, request, lookup=False):
     return self.model.query()
     
+  def log_info (self, request, form=None):
+    return None
+    
   @staff_required
   @pagination('results')
   def list_view (self, request):
@@ -188,10 +191,10 @@ class Admin (object):
         
         if action == 'Update':
           #todo: make user id more generic
-          log_change(instance, form, user=user_id(request))
+          log_change(instance, form, user=user_id(request), additional_info=self.log_info(request, form))
           
         else:
-          log_add(instance, user=user_id(request))
+          log_add(instance, user=user_id(request), additional_info=self.log_info(request, form))
           
         return http.HttpResponseRedirect(reverse(self.list_urlkey()))
         

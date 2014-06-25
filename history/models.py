@@ -19,6 +19,8 @@ class LogEntry (ndb.Model):
   
   diff = ndb.TextProperty()
   
+  additional_info = ndb.StringProperty()
+  
   def Diff (self):
     if self.diff:
       return '<pre>' + self.diff + '</pre>'
@@ -30,7 +32,7 @@ class LogEntry (ndb.Model):
   def ObjectKey (self):
     return self.obj_key.urlsafe()
     
-def log_change (instance, form, user=None):
+def log_change (instance, form, user=None, additional_info=None):
   diff = 'Updated: '
   diff += ', '.join(form.changed_data)
   diff += '\n'
@@ -61,14 +63,31 @@ def log_change (instance, form, user=None):
         diff += prefix + title + mydiff
         
   entry = LogEntry(
-    obj_key=instance.key, obj_kind=instance._get_kind(), user=user, action='change', diff=diff)
+    obj_key=instance.key,
+    obj_kind=instance._get_kind(),
+    user=user,
+    action='change',
+    diff=diff,
+    additional_info=additional_info,
+  )
   entry.put()
   
-def log_add (instance, user=None):
-  entry = LogEntry(obj_key=instance.key, obj_kind=instance._get_kind(), user=user, action='add')
+def log_add (instance, user=None, additional_info=None):
+  entry = LogEntry(
+    obj_key=instance.key,
+    obj_kind=instance._get_kind(),
+    user=user,
+    action='add',
+    additional_info=additional_info
+  )
   entry.put()
   
-def log_delete (instance):
-  entry = LogEntry(obj_key=instance.key, obj_kind=instance._get_kind(), user=user, action='delete')
+def log_delete (instance, additional_info=None):
+  entry = LogEntry(
+    obj_key=instance.key,
+    obj_kind=instance._get_kind(),
+    user=user, action='delete',
+    additional_info=additional_info
+  )
   entry.key.delete()
   
