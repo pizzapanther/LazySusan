@@ -13,6 +13,7 @@ LS_FORM_MAP_DEFAULT = {
   'StringProperty': forms.CharField,
   'IntegerProperty': forms.IntegerField,
   'BooleanProperty': forms.BooleanField,
+  'FloatProperty': forms.FloatField,
   
   'UserProperty': 'UserField',
   'DateTimeProperty': 'DateTimeField',

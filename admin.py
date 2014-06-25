@@ -36,7 +36,16 @@ class Admin (object):
       overrides = getattr(self.Meta, 'field_overrides', {})
       help_text = getattr(self.Meta, 'help_text', {})
       structured = getattr(self.Meta, 'structured', {})
-      self.form = generate_form(self.model, self.Meta.fields, choices, overrides, help_text, structured)
+      read_only = getattr(self.Meta, 'read_only', ())
+      
+      self.form = generate_form(
+        self.model,
+        self.Meta.fields,
+        choices, overrides,
+        help_text,
+        structured,
+        read_only
+      )
       
     else:
       raise Exception('Admin not configured with a form or model.')

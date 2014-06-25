@@ -13,7 +13,7 @@ from .widgets import ListWidget
 from .utils import static_path
 import LazySusan.fields
 
-def translate_fields (model, fields, choices, overrides, help_text, structured):
+def translate_fields (model, fields, choices, overrides, help_text, structured, read_only):
   field_dict = OrderedDict()
   
   for f in fields:
@@ -69,7 +69,9 @@ def translate_fields (model, fields, choices, overrides, help_text, structured):
       
     field_dict[f] = field(**kwargs)
     field_dict[f].is_structured = False
-    
+    if f in read_only:
+      field_dict[f].read_only = True
+      
   return field_dict
   
 class BootstrapFormMixin (object):
@@ -81,6 +83,9 @@ class BootstrapFormMixin (object):
         
       else:
         self.fields[myField].widget.attrs['class'] = 'form-control'
+        
+      if hasattr(self.fields[myField], 'read_only') and self.fields[myField].read_only:
+        self.fields[myField].widget.attrs['readonly'] = 'readonly'
         
 class ModelFormMeta (MediaDefiningClass):
   def __new__ (metaname, classname, baseclasses, attrs):
@@ -95,6 +100,7 @@ class ModelFormMeta (MediaDefiningClass):
     overrides = getattr(meta, 'field_overrides', {})
     help_text = getattr(meta, 'help_text', {})
     structured = getattr(meta, 'structured', {})
+    read_only = getattr(meta, 'read_only', ())
     
     new_class.base_fields = translate_fields(
       new_class.Meta.model,
@@ -103,6 +109,7 @@ class ModelFormMeta (MediaDefiningClass):
       overrides,
       help_text,
       structured,
+      read_only,
     )
     
     return new_class
@@ -210,7 +217,7 @@ class ModelForm (forms.BaseForm):
 class AdminModelForm (BootstrapFormMixin, ModelForm):
   required_css_class = 'required'
   
-def generate_form (m, f, c={}, o={}, h={}, s={}):
+def generate_form (m, f, c={}, o={}, h={}, s={}, r=()):
   class F (AdminModelForm):
     class Meta:
       model = m
@@ -219,6 +226,7 @@ def generate_form (m, f, c={}, o={}, h={}, s={}):
       field_overrides = o
       help_text = h
       structured = s
+      read_only = r
       
   return F
   
