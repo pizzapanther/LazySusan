@@ -12,7 +12,8 @@ from google.appengine.ext import ndb
 from .utils import AdminResponse, uncamel, unslugify, cached_method, get_name
 from .forms import generate_form
 from .pagination import pagination
-from .auth import staff_required
+from .auth import staff_required, user_id
+from .history.models import log_change, log_add, log_delete
 
 class Admin (object):
   list_display = []
@@ -183,8 +184,15 @@ class Admin (object):
       
     if request.POST:
       if form.is_valid():
-        form.save()
+        instance = form.save()
         
+        if action == 'Update':
+          #todo: make user id more generic
+          log_change(instance, form, user=user_id(request))
+          
+        else:
+          log_add(instance, user=user_id(request))
+          
         return http.HttpResponseRedirect(reverse(self.list_urlkey()))
         
     c = {
@@ -250,5 +258,11 @@ class StructuredAdmin (Admin):
     return data
     
   def hidden_widget (self):
-    return ''
+    return forms.HiddenInput()
+    
+  def _has_changed (self, initial, data):
+    return False
+    
+  def to_python (self, value):
+    return value
     

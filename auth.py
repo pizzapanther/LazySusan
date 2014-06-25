@@ -4,6 +4,8 @@ from django import http
 from django.core.urlresolvers import get_mod_func
 from django.utils.importlib import import_module
 
+from google.appengine.api import users
+
 from .settings import LS_AUTHENTICATOR
 
 def staff_required (target):
@@ -31,4 +33,11 @@ def staff_required (target):
     return response
     
   return wrapper
+  
+def user_id (request):
+  user = users.get_current_user()
+  if user:
+    return user.email()
+    
+  return None
   
