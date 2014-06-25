@@ -196,7 +196,10 @@ class Admin (object):
       
     if request.POST:
       if form.is_valid():
-        instance = form.save()
+        instance = form.save(commit=False)
+        self.pre_save(request, instance, form)
+        instance.put()
+        self.post_save(request, instance, form)
         
         if action == 'Update':
           #todo: make user id more generic
@@ -222,6 +225,12 @@ class Admin (object):
   @staff_required
   def add_view (self, request):
     return self.form_view(request, 'Add')
+    
+  def pre_save (self, request, instance, form):
+    return None
+    
+  def post_save (self, request, instance, form):
+    return None
     
   @staff_required
   def edit_view (self, request, key):
