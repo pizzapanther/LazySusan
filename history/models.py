@@ -60,7 +60,7 @@ def log_change (instance, form, user=None, additional_info=None):
             mydiff += '\n'
             
       if mydiff:
-        diff += prefix + title + mydiff
+        diff += prefix + title + mydiff + "\n"
         
   entry = LogEntry(
     obj_key=instance.key,
