@@ -21,7 +21,7 @@
       <tbody>
         <tr ng-repeat="row in lookup.results">
           <td><a class="clickme" ng-click="select(row[0], row[1])">Select &raquo;</a></td>
-          <td ng-repeat="cell in row[2]" ng-bind-html="cell"></td>
+          <td ng-repeat="cell in row[2] track by $index" ng-bind-html="cell"></td>
         </tr>
       </tbody>
     </table>

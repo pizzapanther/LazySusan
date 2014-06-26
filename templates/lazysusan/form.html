@@ -6,6 +6,16 @@
 {{ form.media }}
 
 {% endblock %}
+{% block breadcrumbs %}
+<li><a>&raquo;</a></li>
+<li><a href="../../">{{ admin.app.name }}</a></li>
+<li><a>&raquo;</a></li>
+<li><a href="../">{{ admin.plural }}</a></li>
+<li><a>&raquo;</a></li>
+<li class="active">
+  <a>{{ title }}</a>
+</li>
+{% endblock %}
 {% block content %}
 <div class="container" id="FormCtrl" ng-controller="FormCtrl">
   <div class="row">

@@ -215,6 +215,7 @@ class Admin (object):
       'action': action,
       'ngApp': 'lsform',
       'form': form,
+      'admin': self,
     }
     
     if action == 'Update':

@@ -1,4 +1,10 @@
 {% extends "lazysusan/base.html" %}
+{% block breadcrumbs %}
+<li><a>&raquo;</a></li>
+<li class="active">
+  <a>{{ app.name }}</a>
+</li>
+{% endblock %}
 {% block content %}
 <div class="container">
   <div class="row">
