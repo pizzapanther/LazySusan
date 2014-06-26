@@ -23,11 +23,18 @@ class KeyWidget (forms.TextInput):
     value_name = ''
     v = None
     if value:
-      v = value.urlsafe()
-      obj = value.get()
-      if obj:
-        value_name = unicode(obj)
-        
+      if hasattr(value, 'urlsafe'):
+        v = value.urlsafe()
+        obj = value.get()
+        if obj:
+          value_name = unicode(obj)
+          
+      else:
+        v = value
+        obj = ndb.Key(urlsafe=value).get()
+        if obj:
+          value_name = unicode(obj)
+          
     html = '<div class="key-widget">'
     html += super(KeyWidget, self).render(name, v, attrs=attrs)
     html += '<key-lookup kind="{}" widget="{}"></key-lookup>'.format(self.kind, attrs['id'])
