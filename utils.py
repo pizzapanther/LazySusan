@@ -54,7 +54,7 @@ def gae_admin_required (request):
   user = users.get_current_user()
   if user:
     if users.is_current_user_admin():
-      return True, None
+      return True, user.email()
       
     return False, http.HttpResponseForbidden('You do not have access to this area.', content_type="text/plain")
     

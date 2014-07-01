@@ -8,5 +8,10 @@
   "total_pages": {{ paginator.total_pages }},
   "has_next": {% if paginator.has_next %}true{% else %}false{% endif %},
   "has_prev": {% if paginator.has_previous %}true{% else %}false{% endif %},
-  "page": {{ paginator.number }}
+  "page": {{ paginator.number }},
+  "filters": [
+    {% for filter in admin.list_filters %}
+    {{ filter.js_properties|safe }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+  ]
 }

@@ -1,5 +1,7 @@
 import re
 import types
+import logging
+import hashlib
 
 from django import http
 from django import forms
@@ -8,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 
 from google.appengine.ext import ndb
+from google.appengine.api import memcache
 
 from .utils import AdminResponse, uncamel, unslugify, cached_method, get_name
 from .forms import generate_form
@@ -16,9 +19,11 @@ from .auth import staff_required, user_id
 from .history.models import log_change, log_add, log_delete
 
 class Admin (object):
+  list_filters = []
   list_display = []
   lookup = False
   lookup_list_display = []
+  cache_namespace = 'LazySusanAdmin'
   
   def __init__ (self, app):
     self.app = app
@@ -101,13 +106,49 @@ class Admin (object):
   def queryset (self, request, lookup=False):
     return self.model.query()
     
+  def apply_list_filters (self, request, query):
+    for f in self.list_filters:
+      args = f.query_args(self.model, request)
+      if args:
+        query = query.filter(*args)
+        
+    return query
+    
+  def has_filter_values (self):
+    for f in self.list_filters:
+      if f.values:
+        return True
+        
+    return False
+    
   def log_info (self, request, form=None):
     return None
+    
+  def cache_key (self, request, thing):
+    key = '{}-{}-{}'.format(thing, request.path, request.user_id)
+    return hashlib.sha224(key).hexdigest()
     
   @staff_required
   @pagination('results')
   def list_view (self, request):
+    clear = request.GET.get('clear_filters', '')
+    qs_cache_key = self.cache_key(request, 'qs')
+    
+    if clear == '1':
+      memcache.delete(qs_cache_key, namespace=self.cache_namespace)
+      return http.HttpResponseRedirect('./')
+      
+    else:
+      if len(request.GET.items()) == 0:
+        qs = memcache.get(qs_cache_key, namespace=self.cache_namespace)
+        if qs:
+          return http.HttpResponseRedirect('./?' + qs)
+          
+      elif request.META['QUERY_STRING']:
+        memcache.set(qs_cache_key, request.META['QUERY_STRING'], namespace=self.cache_namespace)
+        
     qs = self.queryset(request)
+    qs = self.apply_list_filters(request, qs)
     
     c = {
       'title': self.plural,
@@ -115,6 +156,7 @@ class Admin (object):
       'field_context': (self, self.list_fields(request)),
       'list_field_names': self.list_field_names(request),
       'admin': self,
+      'ngApp': 'lslist',
     }
     
     return AdminResponse(self.app.site, request, 'lazysusan/list.html', c)

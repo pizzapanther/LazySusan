@@ -1,6 +1,12 @@
 {% extends "lazysusan/base.html" %}{% load lstags %}
 {% block head %}
+
 <script type="text/javascript" src="{{ LS_STATIC }}js/form-ctrl.js"></script>
+<script type="text/ng-template" id="default-filter.html">
+  <div class="form-group">
+    <em>Select a filter to for more options.</em>
+  </div>
+</script>
 
 <!-- Form Media -->
 {{ form.media }}

@@ -22,9 +22,10 @@ def staff_required (target):
         request = a
         break
         
-    is_staff, response = authenicator(request)
+    is_staff, response_or_id = authenicator(request)
     
     if is_staff:
+      request.user_id = response_or_id
       return target(*args, **kwargs)
       
     if type(response) in (types.StringType, types.UnicodeType):

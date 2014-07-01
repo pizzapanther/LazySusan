@@ -91,7 +91,8 @@ class AdminSite (object):
       c = {
         'field_context': (admin, admin.list_fields(request, True)),
         'list_field_names': admin.list_field_names(request, True),
-        'results': query
+        'results': query,
+        'admin': admin,
       }
       return AdminResponse(self, request, 'lazysusan/ng/KindResults.json', c, content_type='application/json')
       

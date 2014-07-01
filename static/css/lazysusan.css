@@ -119,3 +119,13 @@ ul.list-widget li input {
 .lookupModal form {
   margin: 0 0 20px 0;
 }
+.filters {
+  float: left;
+}
+.filters .btn {
+  margin-bottom: 5px;
+}
+.filters > span {
+  font-weight: bold;
+  padding: 0 10px;
+}

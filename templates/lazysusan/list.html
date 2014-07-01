@@ -1,4 +1,9 @@
 {% extends "lazysusan/base.html" %}{% load lstags %}
+{% block head %}
+{% include "lazysusan/includes/filters.html" with list_filters=admin.list_filters %}
+<script type="text/javascript" src="{{ LS_STATIC }}js/list-ctrl.js"></script>
+
+{% endblock %}
 {% block breadcrumbs %}
 <li><a>&raquo;</a></li>
 <li><a href="../">{{ admin.app.name }}</a></li>
@@ -12,7 +17,7 @@
   <div class="row">
     <div class="col-md-12 col-xs-12 list_view">
       <div class="pull-right">
-        <a href="{% url admin.add_urlkey %}" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+        <a href="{% url admin.add_urlkey %}" class="btn btn-primary"><i class="fa fa-plus"></i> Add {{ admin.name }}</a>
       </div>
       <h1>
         {{ title }}
@@ -20,6 +25,24 @@
       </h1>
       <div class="clearfix"></div>
       <hr>
+      {% if admin.list_filters %}
+      <div class="filters" ng-controller="FilterCtrl">
+        <button class="btn btn-default" ng-click="add_filter()"><i class="fa fa-plus"></i></button> 
+        <span>Filters: </span>
+        {% if admin.has_filter_values %}
+        <a href="./?clear_filters=1" class="btn btn-warning">Clear Filters</a>
+        {% else %}
+        No Filters Selected
+        {% endif %}
+        {% for filter in admin.list_filters %}
+        {% if filter.values %}
+        {% for v in filter.display_values %}
+        <a href="{{ v.url }}" class="btn btn-info">{{ v.display }} <i class="fa fa-times"></i></a>
+        {% endfor %}
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
       {% include "lazysusan/pagination.html" %}
       <div class="clearfix"></div>
       <hr>
