@@ -29,17 +29,13 @@
       <div class="filters" ng-controller="FilterCtrl">
         <button class="btn btn-default" ng-click="add_filter()"><i class="fa fa-plus"></i></button> 
         <span>Filters: </span>
-        {% if admin.has_filter_values %}
+        {% if display_list_filters %}
         <a href="./?clear_filters=1" class="btn btn-warning">Clear Filters</a>
         {% else %}
         No Filters Selected
         {% endif %}
-        {% for filter in admin.list_filters %}
-        {% if filter.values %}
-        {% for v in filter.display_values %}
-        <a href="{{ v.url }}" class="btn btn-info">{{ v.display }} <i class="fa fa-times"></i></a>
-        {% endfor %}
-        {% endif %}
+        {% for filter in display_list_filters %}
+        <a href="{{ filter.url }}" class="btn btn-info">{{ filter.display }} <i class="fa fa-times"></i></a>
         {% endfor %}
       </div>
       {% endif %}

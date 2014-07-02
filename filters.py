@@ -15,8 +15,7 @@ class Filter (object):
   def __init__ (self, attribute, name=None, query_attribute=None, place_holder=''):
     self.attribute = attribute
     self.name = name
-    self.values = []
-    self.request = None
+    
     self.query_attribute = query_attribute
     self.place_holder = place_holder
     
@@ -44,12 +43,22 @@ class Filter (object):
       </div>
     """.format(name=self.name, attribute=self.attribute, placeholder=self.place_holder)
     
-  def query_args (self, model, request):
-    args = []
-    self.request = request
-    self.values = self.request.GET.getlist(self.attribute)
+  def get_values (self, request=None, json=None):
+    if json:
+      ret = []
+      for f in json['filters']:
+        if f['param'] == self.attribute:
+          ret.append(f['value'])
+          
+      return ret
+      
+    return request.GET.getlist(self.attribute)
     
-    for value in self.values:
+  def query_args (self, model, request, json=None):
+    args = []
+    values = self.get_values(request, json)
+    
+    for value in values:
       value = self.to_python(value)
       attr = self.getattr(model)
       try:
@@ -70,10 +79,23 @@ class Filter (object):
   def to_python (self, value):
     return value
     
-  def display_values (self):
+  def display_values_json (self, jdata):
     ret = []
-    for i, v in enumerate(self.values):
-      url = self.url_without(i)
+    values = self.get_values(json=jdata)
+    for i, v in enumerate(values):
+      display = self.name + ' is ' + self.display(v)
+      
+      f = {"display": display, "param": self.attribute, "value": v}
+      ret.append(json.dumps(f))
+      
+    return ret
+    
+  def display_values (self, request):
+    ret = []
+    values = self.get_values(request)
+    
+    for i, v in enumerate(values):
+      url = self.url_without(request, i)
       display = self.name + ' is ' + self.display(v)
       ret.append({'url': url, 'display': display})
       
@@ -82,10 +104,10 @@ class Filter (object):
   def display (self, value):
     return value
     
-  def url_without (self, skip):
+  def url_without (self, request, skip):
     qs = ''
     
-    for key, items in self.request.GET.iterlists():
+    for key, items in request.GET.iterlists():
       for i, v in enumerate(items):
         if i == skip and key == self.attribute:
           pass
@@ -99,7 +121,7 @@ class Filter (object):
     if qs == '':
       qs = 'clear_filters=1'
       
-    return self.request.path + '?' + qs
+    return request.path + '?' + qs
     
 class ChoiceFilter (Filter):
   filter_type = 'choice'

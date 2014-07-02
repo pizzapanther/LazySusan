@@ -106,20 +106,13 @@ class Admin (object):
   def queryset (self, request, lookup=False):
     return self.model.query()
     
-  def apply_list_filters (self, request, query):
+  def apply_list_filters (self, request, query, lookup=False, json=None):
     for f in self.list_filters:
-      args = f.query_args(self.model, request)
+      args = f.query_args(self.model, request, json=json)
       if args:
         query = query.filter(*args)
         
     return query
-    
-  def has_filter_values (self):
-    for f in self.list_filters:
-      if f.values:
-        return True
-        
-    return False
     
   def log_info (self, request, form=None):
     return None
@@ -150,6 +143,11 @@ class Admin (object):
     qs = self.queryset(request)
     qs = self.apply_list_filters(request, qs)
     
+    display_list_filters = []
+    for f in self.list_filters:
+      for d in f.display_values(request):
+        display_list_filters.append(d)
+        
     c = {
       'title': self.plural,
       'results': qs,
@@ -157,6 +155,7 @@ class Admin (object):
       'list_field_names': self.list_field_names(request),
       'admin': self,
       'ngApp': 'lslist',
+      'display_list_filters': display_list_filters,
     }
     
     return AdminResponse(self.app.site, request, 'lazysusan/list.html', c)

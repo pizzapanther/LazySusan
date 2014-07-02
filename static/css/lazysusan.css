@@ -121,9 +121,12 @@ ul.list-widget li input {
 }
 .filters {
   float: left;
+  font-size: 12px;
 }
 .filters .btn {
-  margin-bottom: 5px;
+  margin: 0 5px 5px 0;
+  font-size: 12px;
+  padding: 4px 8px;
 }
 .filters > span {
   font-weight: bold;

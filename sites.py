@@ -1,21 +1,25 @@
 import json
+import hashlib
 
 from django import http
 from django.template import loader, TemplateDoesNotExist, Context
 from django.utils.importlib import import_module
+
+from google.appengine.api import memcache
 
 from .auth import staff_required
 from .utils import AdminResponse
 from .pagination import pagination
 
 class AdminSite (object):
-  def __init__ (self, import_list, name=None, app_name=None):
+  def __init__ (self, import_list, name=None, app_name=None, cache_namespace='LazySusanAdmin'):
     self.apps = []
     self.import_list = import_list
     self.name = name or 'admin'
     self.app_name = app_name or 'admin'
     self.lookups = {}
     self.load_apps()
+    self.cache_namespace = cache_namespace
     
   def load_apps (self):
     slugs = []
@@ -67,6 +71,10 @@ class AdminSite (object):
   def add_lookup (self, admin):
     self.lookups[admin.model._get_kind()] = admin
     
+  def cache_key (self, request, thing):
+    key = '{}-{}-{}'.format(thing, request.path, request.user_id)
+    return hashlib.sha224(key).hexdigest()
+    
   @staff_required
   @pagination('results')
   def kind_lookup_view (self, request):
@@ -84,15 +92,32 @@ class AdminSite (object):
     data = {'status': 'Invalid'}
     
     if kind in self.lookups:
+      param_cache_key = self.cache_key(request, 'params-' + kind)
+      if 'use_cache' in parameter and parameter['use_cache']:
+        p = memcache.get(param_cache_key, namespace=self.cache_namespace)
+        if p:
+          parameter = p
+          
+      else:
+        memcache.set(param_cache_key, parameter, namespace=self.cache_namespace)
+        
       admin = self.lookups[kind]
       results = []
       query = admin.queryset(request, True)
+      query = admin.apply_list_filters(request, query, lookup=True, json=parameter)
       
+      filters = []
+      for f in admin.list_filters:
+        for d in f.display_values_json(parameter):
+          filters.append(d)
+          
       c = {
         'field_context': (admin, admin.list_fields(request, True)),
         'list_field_names': admin.list_field_names(request, True),
         'results': query,
         'admin': admin,
+        'kind': kind,
+        'applied_filters': filters,
       }
       return AdminResponse(self, request, 'lazysusan/ng/KindResults.json', c, content_type='application/json')
       
