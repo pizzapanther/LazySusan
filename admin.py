@@ -315,7 +315,7 @@ class StructuredAdmin (Admin):
     
     super(StructuredAdmin, self).__init__(None)
     
-    self.formset = formset_factory(self.form, can_delete=True)
+    self.formset = formset_factory(self.form, can_delete=True, extra=0)
     
   def prepare_value (self, data):
     return data

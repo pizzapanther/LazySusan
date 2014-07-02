@@ -28,10 +28,10 @@ def staff_required (target):
       request.user_id = response_or_id
       return target(*args, **kwargs)
       
-    if type(response) in (types.StringType, types.UnicodeType):
-      return http.HttpResponseRedirect(response)
+    if type(response_or_id) in (types.StringType, types.UnicodeType):
+      return http.HttpResponseRedirect(response_or_id)
       
-    return response
+    return response_or_id
     
   return wrapper
   

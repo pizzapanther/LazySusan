@@ -42,7 +42,6 @@
           {% with formset=form.formsets|get_dict_value:field.field.prefix %}
           {{ formset.management_form }}
           {% for fsetform in formset %}
-          {{ fsetform.id }}
           {% for fsetfield in fsetform.visible_fields %}
           {% include "lazysusan/form.field.html" with field=fsetfield %}
           {% endfor %}
@@ -51,6 +50,21 @@
           {% endfor %}
           <hr>
           {% endfor %}
+          <div id="{{ formset.prefix }}-insert-before">
+            <button class="btn btn-default" type="button" ng-click="add_structured('{{ formset.prefix }}', '{{ formset.auto_id }}')"><i class="fa fa-plus"></i> Add {{ field.field.name }}</button>
+          </div>
+          <template id="{{ formset.prefix }}-empty-html">
+            {% with fsetform=formset.empty_form %}
+            {% for fsetfield in fsetform.visible_fields %}
+            {% include "lazysusan/form.field.html" with field=fsetfield %}
+            {% endfor %}
+            {% for hidden in fsetform.hidden_fields %}
+            {{ hidden }}
+            {% endfor %}
+            <hr>
+            {% endwith %}
+          </template>
+          <hr>
           {% endwith %}
         </fieldset>
         {% else %}
