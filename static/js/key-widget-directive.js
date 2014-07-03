@@ -1,4 +1,5 @@
 var TEMPLATES = {};
+var LOADED_JS = [];
 
 var FilterModalInstanceCtrl = function ($scope, $modalInstance, kind, filters, parentScope) {
   $scope.form = {
@@ -17,7 +18,26 @@ var FilterModalInstanceCtrl = function ($scope, $modalInstance, kind, filters, p
     
     else {
       $scope.form.include = $scope.kind + '-filter-' + $scope.form.which.attribute + '.html';
+      $scope.process('init_widget')($scope);
     }
+  };
+  
+  $scope.process = function (fname) {
+    var defaultf = {
+      init_widget: function (scope) {},
+      get_value: function (scope) { return scope.form.value; }
+    };
+    
+    var f = null;
+    if ($scope.form.which !== '' && $scope.form.which.function_namespace) {
+      f = window[$scope.form.which.function_namespace];
+    }
+    
+    if (f && f[fname]) {
+      return f[fname];
+    }
+    
+    return defaultf[fname]
   };
   
   $scope.add = function () {
@@ -26,9 +46,10 @@ var FilterModalInstanceCtrl = function ($scope, $modalInstance, kind, filters, p
       return null;
     }
     
+    var value = $scope.process('get_value')($scope);
     parentScope.apply_filter({
       param: $scope.form.which.attribute,
-      value: $scope.form.value
+      value: value
     });
     
     $modalInstance.dismiss('added');
@@ -52,7 +73,8 @@ var SearchModalInstanceCtrl = function ($scope, $http, $modalInstance, $template
     has_next: false,
     has_prev: false,
     filters: [],
-    applied_filters: []
+    applied_filters: [],
+    js: []
   };
   
   $scope.cancel = function () {
@@ -98,6 +120,7 @@ var SearchModalInstanceCtrl = function ($scope, $http, $modalInstance, $template
           $scope.lookup.has_prev = data.has_prev;
           $scope.lookup.filters = data.filters;
           $scope.lookup.applied_filters = data.applied_filters;
+          $scope.lookup.js = data.js;
           
           for (var i=0; i < data.filters.length; i++) {
             var filter = data.filters[i];
@@ -106,6 +129,16 @@ var SearchModalInstanceCtrl = function ($scope, $http, $modalInstance, $template
             else {
               $templateCache.put(tpl_id, filter.template);
               TEMPLATES[tpl_id] = true;
+            }
+          }
+          
+          for (var i=0; i < data.js.length; i++) {
+            var files = data.js[i].files;
+            for (var j=0; j < files.length; j++) {
+              if (LOADED_JS.indexOf(files[j]) < 0) {
+                $.getScript(files[j]);
+                LOADED_JS.push(files[j]);
+              }
             }
           }
         }

@@ -6,12 +6,39 @@ import traceback
 from google.appengine.api import users
 
 from django import http
+from django.conf import settings
 
 from .utils import unslugify
 
 class Filter (object):
   filter_type = 'filter'
+  function_namespace = None
   
+  class Media:
+    js = ()
+    css = {}
+    
+  def render_js (self):
+    ret = ''
+    for path in self.js_paths():
+      ret += '<script type="text/javascript" src="{}"></script>'.format(path)
+      
+    return ret
+    
+  def absolute_path (self, path):
+    if path.startswith(('http://', 'https://', '/')):
+      return path
+      
+    return settings.STATIC_URL + path
+    
+  def js_paths (self):
+    ret = []
+    if hasattr(self.Media, 'js'):
+      for path in self.Media.js:
+        ret.append(self.absolute_path(path))
+        
+    return ret
+    
   def __init__ (self, attribute, name=None, query_attribute=None, place_holder=''):
     self.attribute = attribute
     self.name = name
@@ -33,7 +60,7 @@ class Filter (object):
     return self.js_properties(template=True)
     
   def js_property_list (self):
-    return ['name', 'attribute', 'filter_type', 'template']
+    return ['name', 'attribute', 'filter_type', 'template', 'function_namespace']
     
   @property
   def template (self):
@@ -60,15 +87,23 @@ class Filter (object):
     
     for value in values:
       value = self.to_python(value)
-      attr = self.getattr(model)
       try:
-        args.append(attr == value)
+        expressions = self.query_expression(model, value)
         
       except:
         logging.error(traceback.format_exc())
         raise http.Http404
         
+      else:
+        for e in expressions:
+          args.append(e)
+          
     return args
+    
+  def query_expression (self, model, value):
+    attr = self.getattr(model)
+    
+    return [attr == value]
     
   def getattr (self, model):
     if self.query_attribute:
@@ -83,9 +118,7 @@ class Filter (object):
     ret = []
     values = self.get_values(json=jdata)
     for i, v in enumerate(values):
-      display = self.name + ' is ' + self.display(v)
-      
-      f = {"display": display, "param": self.attribute, "value": v}
+      f = {"display": self.display(v), "param": self.attribute, "value": v}
       ret.append(json.dumps(f))
       
     return ret
@@ -96,13 +129,12 @@ class Filter (object):
     
     for i, v in enumerate(values):
       url = self.url_without(request, i)
-      display = self.name + ' is ' + self.display(v)
-      ret.append({'url': url, 'display': display})
+      ret.append({'url': url, 'display': self.display(v)})
       
     return ret
     
   def display (self, value):
-    return value
+    return self.name + ' is ' + value
     
   def url_without (self, request, skip):
     qs = ''
@@ -142,9 +174,10 @@ class ChoiceFilter (Filter):
   def display (self, value):
     for choice in self.choices_list:
       if choice[0] == value:
-        return choice[1]
+        value = choice[1]
+        break
         
-    return value
+    return self.name + ' is ' + value
     
   @property
   def template (self):

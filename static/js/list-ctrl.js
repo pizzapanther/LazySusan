@@ -17,7 +17,26 @@ var FilterModalInstanceCtrl = function ($scope, $modalInstance, filters) {
     
     else {
       $scope.form.include = 'filter-' + $scope.form.which.attribute + '.html';
+      $scope.process('init_widget')($scope);
     }
+  };
+  
+  $scope.process = function (fname) {
+    var defaultf = {
+      init_widget: function (scope) {},
+      get_value: function (scope) { return scope.form.value; }
+    };
+    
+    var f = null;
+    if ($scope.form.which !== '' && $scope.form.which.function_namespace) {
+      f = window[$scope.form.which.function_namespace];
+    }
+    
+    if (f && f[fname]) {
+      return f[fname];
+    }
+    
+    return defaultf[fname]
   };
   
   $scope.add = function () {
@@ -27,7 +46,8 @@ var FilterModalInstanceCtrl = function ($scope, $modalInstance, filters) {
     }
     
     var url = location.pathname;
-    var pair = $scope.form.which.attribute + '=' + encodeURIComponent($scope.form.value);
+    var value = $scope.process('get_value')($scope);
+    var pair = $scope.form.which.attribute + '=' + encodeURIComponent(value);
     if (location.search) {
       url += location.search + '&' + pair;
     }

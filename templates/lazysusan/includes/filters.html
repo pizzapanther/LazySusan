@@ -1,3 +1,6 @@
+{% for filter in list_filters %}
+{{ filter.render_js|safe }}
+{% endfor %}
 <script type="text/javascript">
   FILTERS = [
     {% for filter in list_filters %}
