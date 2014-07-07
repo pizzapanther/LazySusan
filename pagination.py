@@ -102,7 +102,9 @@ class LSPaginator (object):
       qs = '{}={}'.format(self.page_param, self.current().page - 1)
       
     qs = self.generate_query_string(qs)
-    
+    if qs == '?' or qs == '':
+      qs = '?clear_filters=1'
+      
     return qs
     
   def next_qs (self):
