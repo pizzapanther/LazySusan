@@ -7,6 +7,13 @@ from google.appengine.ext import ndb
 
 from .utils import static_path
 
+class UserWidget (forms.EmailInput):
+  def _format_value (self, value):
+    if value:
+      return value.email()
+      
+    return value
+    
 class KeyWidget (forms.TextInput):
   class Media:
     js = (static_path('js/key-widget-directive.js'),)

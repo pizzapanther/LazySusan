@@ -5,7 +5,7 @@ from google.appengine.ext import ndb
 
 import pytz
 
-from .widgets import ListWidget, DateTimeWidget, KeyWidget
+from .widgets import ListWidget, DateTimeWidget, KeyWidget, UserWidget
 
 class RepeatedField (forms.Field):
   widget = ListWidget
@@ -27,6 +27,8 @@ class RepeatedField (forms.Field):
     super(RepeatedField, self).__init__(*args, **kwargs)
     
 class UserField (forms.EmailField):
+  widget = UserWidget
+  
   def clean (self, value):
     value = value.strip()
     clean = super(UserField, self).clean(value)
