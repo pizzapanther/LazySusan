@@ -1,0 +1,30 @@
+{{% load lstags %}
+  "status": "OK",
+  "kind": "{{ kind }}",
+  "headers": [{% for name in list_field_names %}"{{ name|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+  "results": [{% for object in paginator.current_list %}
+    ["{{ object.key.urlsafe }}", "{{ object }}", [{% for value in object|get_values:field_context %}"{{ value|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}]]{% if not forloop.last %}, {% endif %}{% endfor %}
+  ],
+  
+  "total": {{ paginator.total }},
+  "total_pages": {{ paginator.total_pages }},
+  "has_next": {% if paginator.has_next %}true{% else %}false{% endif %},
+  "has_prev": {% if paginator.has_previous %}true{% else %}false{% endif %},
+  "page": {{ paginator.number }},
+  "filters": [
+    {% for filter in admin.list_filters %}
+    {{ filter.js_properties|safe }}{% if not forloop.last %}, {% endif %}{% endfor %}
+  ],
+  
+  "applied_filters": [
+    {% for filter in applied_filters %}
+    {{ filter|safe }}{% if not forloop.last %}, {% endif %}{% endfor %}
+  ],
+  
+  "js": [
+    {% for filter in admin.list_filters %}
+    {"name": "{{ filter.attribute }}", "files": [{% for js in filter.js_paths %}"{{ js|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}]}{% if not forloop.last %}, {% endif %}{% endfor %}
+  ],
+  
+  "search": "{{ search|escapejs }}"
+}

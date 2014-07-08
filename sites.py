@@ -1,36 +1,41 @@
-from copy import deepcopy
+import json
+import hashlib
 
-from django.utils.importlib import import_module
 from django import http
+from django.template import loader, TemplateDoesNotExist, Context
+from django.utils.importlib import import_module
+
+from google.appengine.api import memcache
 
 from .auth import staff_required
 from .utils import AdminResponse
+from .pagination import pagination
 
 class AdminSite (object):
-  def __init__ (self, config, name='ls', app_name='ls'):
-    self.config = deepcopy(config)
-    self.name = name
-    self.app_name = app_name
-    self.init_admins()
+  def __init__ (self, import_list, name=None, app_name=None, cache_namespace='LazySusanAdmin'):
+    self.apps = []
+    self.import_list = import_list
+    self.name = name or 'admin'
+    self.app_name = app_name or 'admin'
+    self.lookups = {}
+    self.load_apps()
+    self.cache_namespace = cache_namespace
     
-  def init_admins (self):
-    for app in self.config:
-      app[1]['admin_instances'] = []
-      for admin_view in app[1]['admins']:
-        app[1]['admin_instances'].append(self.get_admin_views(app, admin_view))
+  def load_apps (self):
+    slugs = []
+    
+    for app_import in self.import_list:
+      if '.AdminApp' in app_import:
+        app_import = app_import.replace('.AdminApp', '')
         
-  def get_admin_views (self, app, admin_class):
-    if 'module' in app[1]:
-      module = import_module(app[1]['module'])
+      module = import_module(app_import + '.admin')
+      app = getattr(module, 'AdminApp')(self)
+      if app.slug in slugs:
+        raise Exception("Duplicate App Slug")
+        
+      self.apps.append(app)
+      slugs.append(app.slug)
       
-    else:
-      import_list = admin_class.split('.')
-      module = import_module('.'.join(import_list[:-1]))
-      admin_class = import_list[-1]
-      
-    cls = getattr(module, admin_class)
-    return cls(self, app)
-    
   @property
   def urls (self):
     return self.get_urls(), self.app_name, self.name
@@ -39,38 +44,96 @@ class AdminSite (object):
     from django.conf.urls import patterns, url, include
     
     urlpatterns = patterns('',
-      url(r'^$', self.index, name='index'),
-      url(r'^([\w-]+)/$', self.app_index, name='app_index'),
+      url(r'^$', self.index_view, name='index'),
+      url(r'^ng-template/(\S+)$', self.ng_template_view, name='ng-template'),
+      url(r'^kind-lookup/$', self.kind_lookup_view, name='kind-lookup'),
     )
     
-    for app in self.config:
-      for admin_view in app[1]['admin_instances']:
-        urlpatterns += patterns('',
-          url(r'^%s/%s/' % (app[0], admin_view.slug), include(admin_view.urls))
-        )
-        
+    for app in self.apps:
+      urlpatterns += patterns('', url(r'^' + app.slug + '/', include(app.urls)))
+      
     return urlpatterns
     
-  def context (self, d):
-    ret = {'LS_CONFIG': self.config}
-    ret.update(d)
-    return ret
+  @staff_required
+  def index_view (self, request):
+    return AdminResponse(self, request, 'lazysusan/index.html', {})
     
   @staff_required
-  def app_index (self, request, app_slug):
-    app = None
-    for i, a in enumerate(self.config):
-      if a[0] == app_slug:
-        app = self.config[i]
-        break
+  def ng_template_view (self, request, path):
+    try:
+      t = loader.get_template('lazysusan/ng/' + path)
       
-    if app is None:
+    except TemplateDoesNotExist:
       raise http.Http404
       
-    return AdminResponse(request, 'lazysusan/app_index.html', self.context({'app': app}))
+    return http.HttpResponse(t.render(Context({})))
+    
+  def add_lookup (self, admin):
+    self.lookups[admin.model._get_kind()] = admin
+    
+  def cache_key (self, request, thing):
+    key = '{}-{}-{}'.format(thing, request.path, request.user_id)
+    return hashlib.sha224(key).hexdigest()
     
   @staff_required
-  def index (self, request):
+  @pagination('results')
+  def kind_lookup_view (self, request):
+    try:
+      parameter = json.loads(request.body)
+      
+    except:
+      search = request.GET.get('search', '')
+      kind = request.GET.get('kind', '')
+      
+    else:
+      search = parameter.get('search', '')
+      kind = parameter.get('kind', '')
+      
+    data = {'status': 'Invalid'}
     
-    return AdminResponse(request, 'lazysusan/index.html', self.context({}))
+    if kind in self.lookups:
+      param_cache_key = self.cache_key(request, 'params-' + kind)
+      if 'use_cache' in parameter and parameter['use_cache']:
+        p = memcache.get(param_cache_key, namespace=self.cache_namespace)
+        if p:
+          parameter = p
+          
+      else:
+        memcache.set(param_cache_key, parameter, namespace=self.cache_namespace)
+        
+      admin = self.lookups[kind]
+      results = []
+      query = admin.queryset(request, True)
+      query = admin.apply_list_filters(request, query, lookup=True, json=parameter)
+      query = admin.apply_search_filters(request, query, parameter['search'])
+      
+      filters = []
+      for f in admin.list_filters:
+        for d in f.display_values_json(parameter):
+          filters.append(d)
+          
+      c = {
+        'field_context': (admin, admin.list_fields(request, True)),
+        'list_field_names': admin.list_field_names(request, True),
+        'results': query,
+        'admin': admin,
+        'kind': kind,
+        'applied_filters': filters,
+        'search': parameter['search'],
+      }
+      return AdminResponse(self, request, 'lazysusan/ng/KindResults.json', c, content_type='application/json')
+      
+    else:
+      data['message'] = kind + ' lookups not configured.'
+      
+    return http.HttpResponse(json.dumps(data), content_type='application/json')
+    
+  def ng_template_urlkey (self):
+    return ":".join([self.name, 'ng-template'])
+    
+  def kind_lookup_urlkey (self):
+    return ":".join([self.name, 'kind-lookup'])
+    
+  def index_urlkey (self):
+    return ":".join([self.name, 'index'])
     

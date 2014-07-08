@@ -1,0 +1,15 @@
+{% if field.field.widget.is_checkbox %}
+<div class="form-group{% if field.errors %} has-error{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}">
+  <label>
+    {{ field }} {{ field.label }}
+  </label>
+  {% if field.errors %}<div class="text-danger">{{ field.errors.0 }}</div>{% endif %}
+</div>
+{% else %}
+<div class="form-group{% if field.errors %} has-error{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}">
+  <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {% if field.help_text %}<span class="help">({{ field.help_text }})</span>{% endif %}
+  {{ field }}
+  {% if field.errors %}<div class="text-danger">{{ field.errors.0 }}</div>{% endif %}
+</div>
+{% endif %}

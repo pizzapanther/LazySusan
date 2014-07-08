@@ -1,20 +1,44 @@
+import types
+
 from django import http
+from django.core.urlresolvers import get_mod_func
+from django.utils.importlib import import_module
 
 from google.appengine.api import users
 
-from .utils import get_request, AdminResponse
+from .settings import LS_AUTHENTICATOR
 
 def staff_required (target):
   def wrapper (*args, **kwargs):
-    request = get_request(args)
-    
-    if request.user.is_authenticated():
-      if request.user.is_staff:
-        return target(*args, **kwargs)
-        
-      return AdminResponse(request, 'lazysusan/permission_denied.html', {}, status=403)
+    if LS_AUTHENTICATOR is None:
+      raise Exception('Configure LS_AUTHENTICATOR for staff access to the admin site.')
       
-    return http.HttpResponseRedirect(users.create_login_url(request.get_full_path()))
+    auther = get_mod_func(LS_AUTHENTICATOR)
+    module = import_module(auther[0])
+    authenicator = getattr(module, auther[1])
+    
+    for a in args:
+      if isinstance(a, http.HttpRequest):
+        request = a
+        break
+        
+    is_staff, response_or_id = authenicator(request)
+    
+    if is_staff:
+      request.user_id = response_or_id
+      return target(*args, **kwargs)
+      
+    if type(response_or_id) in (types.StringType, types.UnicodeType):
+      return http.HttpResponseRedirect(response_or_id)
+      
+    return response_or_id
     
   return wrapper
+  
+def user_id (request):
+  user = users.get_current_user()
+  if user:
+    return user.email()
+    
+  return None
   

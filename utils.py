@@ -1,31 +1,32 @@
+import re
+
 from django import http
 from django.template.response import TemplateResponse
 
-from .settings import ADMIN_CONTEXT
+from google.appengine.api import users
 
-class NoRequest (Exception):
-  pass
-
-class ImproperConfiguration (Exception):
-  pass
+from .settings import ADMIN_CONTEXT, LS_STATIC
 
 class AdminResponse (TemplateResponse):
-  def __init__(self, request, template, context=None, mimetype=None, status=None, content_type=None, current_app=None):
+  def __init__(self, admin_site, request, template, context=None, mimetype=None, status=None, content_type=None, current_app=None):
     c = ADMIN_CONTEXT.copy()
     c.update(context)
+    c['site'] = admin_site
+    c['logout_url'] = users.create_logout_url(request.get_full_path())
+    
     super(AdminResponse, self).__init__(request, template, c, mimetype, status, content_type, current_app)
     
-def get_request (args):
-  request = None
-  for a in args:
-    if isinstance(a, http.HttpRequest):
-      request = a
-      break
-    
-  if request is None:
-    raise NoRequest('Request object not passed in as an argument.')
-    
-  return request
+def valid_choices (choices):
+  return [c[0] for c in choices]
+  
+def static_path (path):
+  return LS_STATIC + path
+  
+def uncamel (text):
+  return re.sub("([a-z])([A-Z])","\g<1> \g<2>", text)
+  
+def unslugify (text):
+  return text.replace('-', ' ').replace('_', ' ').title()
   
 def cached_method (target):
   def wrapper(*args, **kwargs):
@@ -39,4 +40,23 @@ def cached_method (target):
     return getattr(obj, name)
     
   return wrapper
+  
+def get_name (instance):
+  if hasattr(instance, '__unicode__'):
+    return instance.__unicode__()
+    
+  elif hasattr(instance, 'key'):
+    return instance.key.urlsafe()
+    
+  return 'Name not found'
+  
+def gae_admin_required (request):
+  user = users.get_current_user()
+  if user:
+    if users.is_current_user_admin():
+      return True, user.email()
+      
+    return False, http.HttpResponseForbidden('You do not have access to this area.', content_type="text/plain")
+    
+  return False, users.create_login_url(request.get_full_path())
   

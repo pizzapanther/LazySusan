@@ -1,0 +1,222 @@
+
+@import "style-guide.less";
+
+body {
+  padding-top: 50px;
+}
+
+.breadcrumbs {
+  li {
+    a {
+      max-width: 270px;
+      overflow: hidden;
+      max-height: 50px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.app_list {
+  margin: 20px 0;
+  padding: 0;
+  
+  h2 {
+    margin: 0;
+    border-bottom: 1px solid @borderColor;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 10px 20px 10px 20px;
+    font-weight: bold;
+    font-size: 2.0rem;
+    background-color: @altBg;
+  }
+  
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    
+    li  {
+      padding: 5px 20px;
+      border-bottom: 1px solid @borderColor;
+      
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+  }
+}
+
+.app {
+  border: 1px solid @borderColor;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+a.text, .pagination>li>a.text, .pagination>li>a.text:hover {
+  color: @fg;
+  background-color: transparent;
+}
+
+h1 {
+  font-size: 32px;
+}
+
+ul.pagination {
+  margin: 0;
+}
+
+.clickme {
+  cursor: pointer;
+}
+
+.form-group {
+  &.required {
+    .control-label:after {
+      content: " *";
+    }
+  }
+  
+  input, select {
+    max-width: 450px;
+  }
+  
+  .input-group {
+    max-width: 450px;
+    
+    input, select {
+      max-width: 100%;
+    }
+  }
+}
+
+.form_view {
+  margin: 20px 0;
+  
+  .help {
+    font-style: italic;
+    font-size: 75%;
+    padding: 0 0 0 10px;
+  }
+  
+  .btn {
+    margin-right: 10px;
+  }
+}
+
+.list_view {
+  margin: 20px 0;
+  
+  .form-inline {
+    margin: 0 10px 0 0;
+    
+    .input-group {
+      width: 175px;
+      
+      .btn {
+        height: 28px;
+      }
+    }
+    
+    input {
+      font-size: 12px;
+      padding: 4px 8px;
+      height: 28px;
+    }
+  }
+  
+  h1 {
+    margin: 0;
+    
+    em {
+      padding: 0 0;
+      font-size: 45%;
+    }
+  }
+  
+  hr {
+    margin: 10px 0 10px 0;
+  }
+  
+  table {
+    font-size: 90%;
+  }
+}
+
+ul.list-widget {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  
+  li {
+    margin: 0 0 10px 10px;
+    
+    a.rm {
+      display: inline-block;
+      color: @error;
+    }
+    
+    select, input {
+      display: inline-block;
+    }
+  }
+}
+
+.key-widget {
+  input {
+    float: left;
+  }
+  
+  a {
+    display: block;
+    float: left;
+    margin: 0 5px;
+  }
+}
+
+.lookupModal {
+  div.table-wrapper {
+    max-height: 500px;
+    overflow: auto;
+  }
+  
+  form {
+    margin: 0 0 20px 0;
+  }
+  
+  .search {
+    margin: 0 10px 0 0;
+    
+    .input-group {
+      width: 175px;
+      
+      .btn {
+        height: 28px;
+        padding: 0 8px;
+      }
+    }
+    
+    input {
+      font-size: 12px;
+      padding: 4px 8px;
+      height: 28px;
+    }
+  }
+}
+
+.filters {
+  float: left;
+  font-size: 12px;
+  
+  .btn {
+    margin: 0 5px 5px 0;
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+  
+  > span {
+    font-weight: bold;
+    padding: 0 10px;
+  }
+}

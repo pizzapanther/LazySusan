@@ -1,12 +1,16 @@
-{% extends "lazysusan/base.html" %}{% load url from future %}
-{% block title %}{{ app.1.name }}{% endblock %}
+{% extends "lazysusan/base.html" %}
 {% block breadcrumbs %}
+<li><a>&raquo;</a></li>
 <li class="active">
-  <a href=""><span>{{ app.1.name }}</span></a>
+  <a>{{ app.name }}</a>
 </li>
 {% endblock %}
-{% block main %}
-<div class="row-fluid app_index">
-  {% include "lazysusan/app.html" %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 col-xs-12 app_list">
+      {% include "lazysusan/app.html" %}
+    </div>
+  </div>
 </div>
 {% endblock %}

@@ -1,0 +1,170 @@
+body {
+  padding-top: 50px;
+}
+.breadcrumbs li a {
+  max-width: 270px;
+  overflow: hidden;
+  max-height: 50px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.app_list {
+  margin: 20px 0;
+  padding: 0;
+}
+.app_list h2 {
+  margin: 0;
+  border-bottom: 1px solid #cccccc;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  padding: 10px 20px 10px 20px;
+  font-weight: bold;
+  font-size: 2.0rem;
+  background-color: #f9f9f9;
+}
+.app_list ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+.app_list ul li {
+  padding: 5px 20px;
+  border-bottom: 1px solid #cccccc;
+}
+.app_list ul li:last-child {
+  border-bottom: 0;
+}
+.app {
+  border: 1px solid #cccccc;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+a.text,
+.pagination > li > a.text,
+.pagination > li > a.text:hover {
+  color: #333333;
+  background-color: transparent;
+}
+h1 {
+  font-size: 32px;
+}
+ul.pagination {
+  margin: 0;
+}
+.clickme {
+  cursor: pointer;
+}
+.form-group.required .control-label:after {
+  content: " *";
+}
+.form-group input,
+.form-group select {
+  max-width: 450px;
+}
+.form-group .input-group {
+  max-width: 450px;
+}
+.form-group .input-group input,
+.form-group .input-group select {
+  max-width: 100%;
+}
+.form_view {
+  margin: 20px 0;
+}
+.form_view .help {
+  font-style: italic;
+  font-size: 75%;
+  padding: 0 0 0 10px;
+}
+.form_view .btn {
+  margin-right: 10px;
+}
+.list_view {
+  margin: 20px 0;
+}
+.list_view .form-inline {
+  margin: 0 10px 0 0;
+}
+.list_view .form-inline .input-group {
+  width: 175px;
+}
+.list_view .form-inline .input-group .btn {
+  height: 28px;
+}
+.list_view .form-inline input {
+  font-size: 12px;
+  padding: 4px 8px;
+  height: 28px;
+}
+.list_view h1 {
+  margin: 0;
+}
+.list_view h1 em {
+  padding: 0 0;
+  font-size: 45%;
+}
+.list_view hr {
+  margin: 10px 0 10px 0;
+}
+.list_view table {
+  font-size: 90%;
+}
+ul.list-widget {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+ul.list-widget li {
+  margin: 0 0 10px 10px;
+}
+ul.list-widget li a.rm {
+  display: inline-block;
+  color: #a94442;
+}
+ul.list-widget li select,
+ul.list-widget li input {
+  display: inline-block;
+}
+.key-widget input {
+  float: left;
+}
+.key-widget a {
+  display: block;
+  float: left;
+  margin: 0 5px;
+}
+.lookupModal div.table-wrapper {
+  max-height: 500px;
+  overflow: auto;
+}
+.lookupModal form {
+  margin: 0 0 20px 0;
+}
+.lookupModal .search {
+  margin: 0 10px 0 0;
+}
+.lookupModal .search .input-group {
+  width: 175px;
+}
+.lookupModal .search .input-group .btn {
+  height: 28px;
+  padding: 0 8px;
+}
+.lookupModal .search input {
+  font-size: 12px;
+  padding: 4px 8px;
+  height: 28px;
+}
+.filters {
+  float: left;
+  font-size: 12px;
+}
+.filters .btn {
+  margin: 0 5px 5px 0;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.filters > span {
+  font-weight: bold;
+  padding: 0 10px;
+}

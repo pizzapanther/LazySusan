@@ -1,0 +1,17 @@
+<div class="modal-header">
+  <h3 class="modal-title">Add A Filter</h3>
+</div>
+<form ng-submit="add()">
+  <div class="modal-body">
+    <div class="form-group">
+      <select class="form-control" name="filter-which" id="filter-which" ng-model="form.which" ng-options="filter.name for filter in filters" ng-change="update_form()">
+        <option value="">Pick A Filter</option>
+      </select>
+    </div>
+    <ng-include src="form.include"></ng-include>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" type="submit">Add</button>
+    <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
+  </div>
+</form>

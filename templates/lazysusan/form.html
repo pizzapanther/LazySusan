@@ -1,0 +1,83 @@
+{% extends "lazysusan/base.html" %}{% load lstags %}
+{% block head %}
+
+<script type="text/javascript" src="{{ LS_STATIC }}js/form-ctrl.js"></script>
+<script type="text/ng-template" id="default-filter.html">
+  <div class="form-group">
+    <em>Select a filter to for more options.</em>
+  </div>
+</script>
+
+<!-- Form Media -->
+{{ form.media }}
+
+<script type="text/ng-template" id="default-filter.html">
+  <div class="form-group">
+    <em>Select a filter to for more options.</em>
+  </div>
+</script>
+{% endblock %}
+{% block breadcrumbs %}
+<li><a>&raquo;</a></li>
+<li><a href="../../">{{ admin.app.name }}</a></li>
+<li><a>&raquo;</a></li>
+<li><a href="../">{{ admin.plural }}</a></li>
+<li><a>&raquo;</a></li>
+<li class="active">
+  <a>{{ title }}</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="container" id="FormCtrl" ng-controller="FormCtrl">
+  <div class="row">
+    <div class="col-md-8 col-xs-12 form_view">
+      <h1>{{ title }}</h1>
+      <hr>
+      <form role="form" method="POST" action="./">
+        {% csrf_token %}
+        {% for field in form.visible_fields %}
+        {% if field.field.is_structured %}
+        <fieldset>
+          <legend>{{ field.field.plural }}:</legend>
+          {% with formset=form.formsets|get_dict_value:field.field.prefix %}
+          {{ formset.management_form }}
+          {% for fsetform in formset %}
+          {% for fsetfield in fsetform.visible_fields %}
+          {% include "lazysusan/form.field.html" with field=fsetfield %}
+          {% endfor %}
+          {% for hidden in fsetform.hidden_fields %}
+          {{ hidden }}
+          {% endfor %}
+          <hr>
+          {% endfor %}
+          <div id="{{ formset.prefix }}-insert-before">
+            <button class="btn btn-default" type="button" ng-click="add_structured('{{ formset.prefix }}', '{{ formset.auto_id }}')"><i class="fa fa-plus"></i> Add {{ field.field.name }}</button>
+          </div>
+          <template id="{{ formset.prefix }}-empty-html">
+            {% with fsetform=formset.empty_form %}
+            {% for fsetfield in fsetform.visible_fields %}
+            {% include "lazysusan/form.field.html" with field=fsetfield %}
+            {% endfor %}
+            {% for hidden in fsetform.hidden_fields %}
+            {{ hidden }}
+            {% endfor %}
+            <hr>
+            {% endwith %}
+          </template>
+          <hr>
+          {% endwith %}
+        </fieldset>
+        {% else %}
+        {% include "lazysusan/form.field.html" %}
+        {% endif %}
+        {% endfor %}
+        {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">{{ action }}</button>
+        <a href="../" class="btn btn-default">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

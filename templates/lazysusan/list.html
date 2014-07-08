@@ -1,0 +1,98 @@
+{% extends "lazysusan/base.html" %}{% load lstags %}
+{% block head %}
+{% include "lazysusan/includes/filters.html" with list_filters=admin.list_filters %}
+<script type="text/javascript" src="{{ LS_STATIC }}js/list-ctrl.js"></script>
+
+{% endblock %}
+{% block breadcrumbs %}
+<li><a>&raquo;</a></li>
+<li><a href="../">{{ admin.app.name }}</a></li>
+<li><a>&raquo;</a></li>
+<li class="active">
+  <a>{{ admin.plural }}</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 col-xs-12 list_view">
+      <div class="pull-right">
+        <a href="{% url admin.add_urlkey %}" class="btn btn-primary"><i class="fa fa-plus"></i> Add {{ admin.name }}</a>
+      </div>
+      <h1>
+        {{ title }}
+        <em>({{ paginator.total }} Results)</em>
+      </h1>
+      <div class="clearfix"></div>
+      <hr>
+      {% if admin.list_filters or admin.list_search_field %}
+      <div class="filters" ng-controller="FilterCtrl">
+        {% if admin.list_search_field %}
+        <form class="form-inline pull-left" role="form" action="./" method="get">
+          <div class="input-group">
+            <input type="text" class="form-control" name="search" id="search" placeholder="Simple Search" value="{{ search }}">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="submit">&raquo;</button>
+            </span>
+          </div>
+          {% for key, values in request.GET.iterlists %}
+          {% if key != 'search' %}
+          {% for value in values %}
+          <input type="hidden" name="{{ key }}" value="{{ value }}">
+          {% endfor %}
+          {% endif %}
+          {% endfor %}
+        </form>
+        {% endif %}
+        <div class="pull-left">
+          <a href="./?clear_filters=1" class="btn btn-warning">Restart</a>
+          {% if admin.list_filters %}
+          <button class="btn btn-default" ng-click="add_filter()"><i class="fa fa-plus"></i></button> 
+          {% if display_list_filters %}
+          
+          {% else %}
+          No Filters Selected
+          {% endif %}
+          {% for filter in display_list_filters %}
+          <a href="{{ filter.url }}" class="btn btn-info">{{ filter.display }} <i class="fa fa-times"></i></a>
+          {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+      {% include "lazysusan/pagination.html" %}
+      <div class="clearfix"></div>
+      <hr>
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            {% for name in list_field_names %}
+            <th>{{ name|safe }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for object in paginator.current_list %}
+          <tr>
+            {% for value in object|get_values:field_context %}
+            <td>
+              {% if forloop.first %}<a href="{% url admin.edit_urlkey object.key.urlsafe %}">{% endif %}
+              {{ value }}
+              {% if forloop.first %}</a>{% endif %}
+            </td>
+            {% endfor %}
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="{{ list_field_names|length }}"><h2><em>No Results</em></h2></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <hr>
+      {% include "lazysusan/pagination.html" %}
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
