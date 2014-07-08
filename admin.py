@@ -21,6 +21,7 @@ from .history.models import log_change, log_add, log_delete
 class Admin (object):
   list_filters = []
   list_display = []
+  list_search_field = None
   lookup = False
   lookup_list_display = []
   cache_namespace = 'LazySusanAdmin'
@@ -114,6 +115,13 @@ class Admin (object):
         
     return query
     
+  def apply_search_filters (self, request, qs, search_term):
+    if self.list_search_field and search_term:
+      field = getattr(self.model, self.list_search_field)
+      qs = qs.filter(field >= search_term.lower(), field < search_term.lower() + u'\ufffd')
+      
+    return qs
+    
   def log_info (self, request, form=None):
     return None
     
@@ -126,6 +134,7 @@ class Admin (object):
   def list_view (self, request):
     clear = request.GET.get('clear_filters', '')
     qs_cache_key = self.cache_key(request, 'qs')
+    search = request.GET.get('search', '')
     
     if clear == '1':
       memcache.delete(qs_cache_key, namespace=self.cache_namespace)
@@ -142,6 +151,7 @@ class Admin (object):
         
     qs = self.queryset(request)
     qs = self.apply_list_filters(request, qs)
+    qs = self.apply_search_filters(request, qs, search)
     
     display_list_filters = []
     for f in self.list_filters:
@@ -156,6 +166,7 @@ class Admin (object):
       'admin': self,
       'ngApp': 'lslist',
       'display_list_filters': display_list_filters,
+      'search': search,
     }
     
     return AdminResponse(self.app.site, request, 'lazysusan/list.html', c)
@@ -260,7 +271,7 @@ class Admin (object):
     }
     
     if action == 'Update':
-      c['title'] += ': ' + get_name(instance)
+      c['title'] = get_name(instance)
       
     return AdminResponse(self.app.site, request, 'lazysusan/form.html', c)
     

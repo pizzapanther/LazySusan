@@ -4,11 +4,18 @@
 </div>
 <div class="modal-body">
   <form class="form-inline" role="form" ng-submit="submit()">
+    <div class="search pull-left">
+      <div class="input-group">
+        <input type="text" class="form-control" name="search" id="search" placeholder="Simple Search" ng-model="lookup.search">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="submit">&raquo;</button>
+        </span>
+      </div>
+    </div>
     <div class="filters pull-left" ng-show="lookup.filters.length > 0">
-      <button class="btn btn-default" ng-click="add_filter()"><i class="fa fa-plus"></i></button> 
-      <span>Filters: </span>
+      <a class="clickme btn btn-warning" ng-click="remove_all_filters()">Restart</a>
+      <button class="btn btn-default" ng-click="add_filter()"><i class="fa fa-plus"></i></button>
       <span ng-show="lookup.applied_filters.length == 0">No Filters Selected</span>
-      <a ng-show="lookup.applied_filters.length > 0" class="clickme btn btn-warning" ng-click="remove_all_filters()">Clear Filters</a>
       <a ng-repeat="f in lookup.applied_filters" ng-click="remove_filter($index)" class="clickme btn btn-info">{{ f.display }} <i class="fa fa-times"></i></a>
     </div>
     <ul class="pagination pull-right">
@@ -16,11 +23,6 @@
       <li><a class="text"><em>Page {{ lookup.page }} of {{ lookup.total_pages }}</em></a></li>
       <li ng-show="lookup.has_next"><a class="clickme" ng-click="next_page()">Next &raquo;</a></li>
     </ul>
-    <!--<div class="form-group">
-      <label class="sr-only" for="lookup_search">Search</label>
-      <input type="text" class="form-control" id="lookup_search" ng-model="lookup.search">
-    </div>
-    <button type="submit" class="btn btn-default">Search</button>-->
     <div class="clearfix"></div>
   </form>
   <div class="table-wrapper">

@@ -121,6 +121,7 @@ var SearchModalInstanceCtrl = function ($scope, $http, $modalInstance, $template
           $scope.lookup.filters = data.filters;
           $scope.lookup.applied_filters = data.applied_filters;
           $scope.lookup.js = data.js;
+          $scope.lookup.search = data.search;
           
           for (var i=0; i < data.filters.length; i++) {
             var filter = data.filters[i];
@@ -176,6 +177,7 @@ var SearchModalInstanceCtrl = function ($scope, $http, $modalInstance, $template
   
   $scope.remove_all_filters = function () {
     $scope.lookup.applied_filters = [];
+    $scope.lookup.search = "";
     $scope.submit(1);
   };
   

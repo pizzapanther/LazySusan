@@ -24,5 +24,7 @@
   "js": [
     {% for filter in admin.list_filters %}
     {"name": "{{ filter.attribute }}", "files": [{% for js in filter.js_paths %}"{{ js|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}]}{% if not forloop.last %}, {% endif %}{% endfor %}
-  ]
+  ],
+  
+  "search": "{{ search|escapejs }}"
 }

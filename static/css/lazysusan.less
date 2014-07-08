@@ -5,6 +5,18 @@ body {
   padding-top: 50px;
 }
 
+.breadcrumbs {
+  li {
+    a {
+      max-width: 270px;
+      overflow: hidden;
+      max-height: 50px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
 .app_list {
   margin: 20px 0;
   padding: 0;
@@ -96,6 +108,24 @@ ul.pagination {
 .list_view {
   margin: 20px 0;
   
+  .form-inline {
+    margin: 0 10px 0 0;
+    
+    .input-group {
+      width: 175px;
+      
+      .btn {
+        height: 28px;
+      }
+    }
+    
+    input {
+      font-size: 12px;
+      padding: 4px 8px;
+      height: 28px;
+    }
+  }
+  
   h1 {
     margin: 0;
     
@@ -153,6 +183,25 @@ ul.list-widget {
   
   form {
     margin: 0 0 20px 0;
+  }
+  
+  .search {
+    margin: 0 10px 0 0;
+    
+    .input-group {
+      width: 175px;
+      
+      .btn {
+        height: 28px;
+        padding: 0 8px;
+      }
+    }
+    
+    input {
+      font-size: 12px;
+      padding: 4px 8px;
+      height: 28px;
+    }
   }
 }
 

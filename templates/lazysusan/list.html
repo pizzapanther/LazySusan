@@ -25,18 +25,39 @@
       </h1>
       <div class="clearfix"></div>
       <hr>
-      {% if admin.list_filters %}
+      {% if admin.list_filters or admin.list_search_field %}
       <div class="filters" ng-controller="FilterCtrl">
-        <button class="btn btn-default" ng-click="add_filter()"><i class="fa fa-plus"></i></button> 
-        <span>Filters: </span>
-        {% if display_list_filters %}
-        <a href="./?clear_filters=1" class="btn btn-warning">Clear Filters</a>
-        {% else %}
-        No Filters Selected
+        {% if admin.list_search_field %}
+        <form class="form-inline pull-left" role="form" action="./" method="get">
+          <div class="input-group">
+            <input type="text" class="form-control" name="search" id="search" placeholder="Simple Search" value="{{ search }}">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="submit">&raquo;</button>
+            </span>
+          </div>
+          {% for key, values in request.GET.iterlists %}
+          {% if key != 'search' %}
+          {% for value in values %}
+          <input type="hidden" name="{{ key }}" value="{{ value }}">
+          {% endfor %}
+          {% endif %}
+          {% endfor %}
+        </form>
         {% endif %}
-        {% for filter in display_list_filters %}
-        <a href="{{ filter.url }}" class="btn btn-info">{{ filter.display }} <i class="fa fa-times"></i></a>
-        {% endfor %}
+        <div class="pull-left">
+          <a href="./?clear_filters=1" class="btn btn-warning">Restart</a>
+          {% if admin.list_filters %}
+          <button class="btn btn-default" ng-click="add_filter()"><i class="fa fa-plus"></i></button> 
+          {% if display_list_filters %}
+          
+          {% else %}
+          No Filters Selected
+          {% endif %}
+          {% for filter in display_list_filters %}
+          <a href="{{ filter.url }}" class="btn btn-info">{{ filter.display }} <i class="fa fa-times"></i></a>
+          {% endfor %}
+          {% endif %}
+        </div>
       </div>
       {% endif %}
       {% include "lazysusan/pagination.html" %}

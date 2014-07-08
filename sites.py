@@ -105,6 +105,7 @@ class AdminSite (object):
       results = []
       query = admin.queryset(request, True)
       query = admin.apply_list_filters(request, query, lookup=True, json=parameter)
+      query = admin.apply_search_filters(request, query, parameter['search'])
       
       filters = []
       for f in admin.list_filters:
@@ -118,6 +119,7 @@ class AdminSite (object):
         'admin': admin,
         'kind': kind,
         'applied_filters': filters,
+        'search': parameter['search'],
       }
       return AdminResponse(self, request, 'lazysusan/ng/KindResults.json', c, content_type='application/json')
       
