@@ -45,7 +45,6 @@
         </form>
         {% endif %}
         <div class="pull-left">
-          <a href="./?clear_filters=1" class="btn btn-warning">Restart</a>
           {% if admin.list_filters %}
           <button class="btn btn-default" ng-click="add_filter()"><i class="fa fa-plus"></i></button> 
           {% if display_list_filters %}
@@ -57,6 +56,7 @@
           <a href="{{ filter.url }}" class="btn btn-info">{{ filter.display }} <i class="fa fa-times"></i></a>
           {% endfor %}
           {% endif %}
+          <a href="./?clear_filters=1" class="btn btn-warning">Restart</a>
         </div>
       </div>
       {% endif %}

@@ -164,6 +164,9 @@ ul.list-widget li input {
   font-size: 12px;
   padding: 4px 8px;
 }
+.filters .btn-warning {
+  margin: 0 5px 5px 5px;
+}
 .filters > span {
   font-weight: bold;
   padding: 0 10px;

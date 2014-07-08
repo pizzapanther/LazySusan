@@ -13,10 +13,10 @@
       </div>
     </div>
     <div class="filters pull-left" ng-show="lookup.filters.length > 0">
-      <a class="clickme btn btn-warning" ng-click="remove_all_filters()">Restart</a>
       <button class="btn btn-default" ng-click="add_filter()"><i class="fa fa-plus"></i></button>
       <span ng-show="lookup.applied_filters.length == 0">No Filters Selected</span>
       <a ng-repeat="f in lookup.applied_filters" ng-click="remove_filter($index)" class="clickme btn btn-info">{{ f.display }} <i class="fa fa-times"></i></a>
+      <a class="clickme btn btn-warning" ng-click="remove_all_filters()">Restart</a>
     </div>
     <ul class="pagination pull-right">
       <li ng-show="lookup.has_prev"><a class="clickme" ng-click="prev_page()">&laquo; Prev</a></li>
