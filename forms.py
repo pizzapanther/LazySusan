@@ -50,6 +50,9 @@ def translate_fields (model, fields, choices, overrides, help_text, structured, 
       if db_property.__class__.__name__ == 'TextProperty' and 'widget' not in kwargs:
         kwargs['widget'] = forms.Textarea
         
+    if db_property._verbose_name:
+      kwargs['label'] = db_property._verbose_name
+      
     if f in help_text:
       kwargs['help_text'] = help_text[f]
       
