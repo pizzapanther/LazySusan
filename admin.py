@@ -2,7 +2,17 @@ import re
 import types
 import logging
 import hashlib
+import datetime
 
+try:
+  import pytz
+  
+except:
+  pytz = None
+  
+else:
+  from django.utils import timezone
+  
 from django import http
 from django import forms
 from django.forms.formsets import formset_factory
@@ -232,6 +242,10 @@ class Admin (object):
           if attr in cmap[field]:
             attr = cmap[field][attr]
             
+      if pytz and isinstance(attr, datetime.datetime):
+        if timezone.is_naive(attr):
+          attr = pytz.utc.localize(attr)
+          
       ret.append(attr)
       
     return ret
