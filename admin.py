@@ -35,6 +35,7 @@ class Admin (object):
   lookup = False
   lookup_list_display = []
   cache_namespace = 'LazySusanAdmin'
+  order = None
   
   def __init__ (self, app):
     self.app = app
@@ -162,7 +163,14 @@ class Admin (object):
     qs = self.queryset(request)
     qs = self.apply_list_filters(request, qs)
     qs = self.apply_search_filters(request, qs, search)
-    
+    if self.order:
+        if self.list_search_field and search:
+            pass
+            #most likely not ordering on search field and this will make the sort order fail
+            
+        else:
+            qs = qs.order(*self.order)
+            
     display_list_filters = []
     for f in self.list_filters:
       for d in f.display_values(request):
