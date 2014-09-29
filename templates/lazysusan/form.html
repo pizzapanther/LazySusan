@@ -76,6 +76,9 @@
         {% endfor %}
         <button type="submit" class="btn btn-primary">{{ action }}</button>
         <a href="../" class="btn btn-default">Cancel</a>
+        {% if action == 'Update' and admin.deletable %}
+        <a class="btn btn-danger pull-right" href="./delete/">Delete</a>
+        {% endif %}
       </form>
     </div>
   </div>

@@ -1,0 +1,25 @@
+{% extends "lazysusan/base.html" %}{% load lstags %}
+{% block breadcrumbs %}
+<li><a>&raquo;</a></li>
+<li><a href="../../">{{ admin.app.name }}</a></li>
+<li><a>&raquo;</a></li>
+<li><a href="../">{{ admin.plural }}</a></li>
+<li><a>&raquo;</a></li>
+<li class="active">
+  <a>{{ title }}</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 col-xs-12 form_view">
+      <h1>{{ title }}</h1>
+      <hr>
+      <h2>Are you sure you wish to delete {{ instance }}?</h2>
+      <br>
+      <a href="../" class="btn btn-default">Cancel</a>
+      <a class="btn btn-danger" href="?confirm=1">Delete</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

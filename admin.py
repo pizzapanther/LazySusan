@@ -36,6 +36,7 @@ class Admin (object):
   lookup_list_display = []
   cache_namespace = 'LazySusanAdmin'
   order = None
+  deletable = False
   
   def __init__ (self, app):
     self.app = app
@@ -101,9 +102,16 @@ class Admin (object):
     urlpatterns = patterns('',
       url(r'^$', self.list_view, name='list'),
       url(r'^add/$', self.add_view, name='add'),
-      url(r'^(\S+)/$', self.edit_view, name='edit'),
     )
     
+    if self.deletable:
+      urlpatterns += patterns('',
+        url(r'^(\S+)/delete/$', self.delete_view, name='delete'),
+      )
+      
+    urlpatterns += patterns('',
+      url(r'^(\S+)/$', self.edit_view, name='edit'),
+    )
     return urlpatterns
     
   def add_urlkey (self):
@@ -300,6 +308,36 @@ class Admin (object):
   @staff_required
   def add_view (self, request):
     return self.form_view(request, 'Add')
+    
+  @staff_required
+  def delete_view (self, request, key):
+    if not self.deletable:
+      raise http.Http404
+      
+    try:
+      key = ndb.Key(urlsafe=key)
+      
+    except:
+      raise http.Http404
+      
+    if key.kind() != self.model._get_kind():
+      raise http.Http404
+      
+    instance = key.get()
+    if instance is None:
+      raise http.Http404
+      
+    if request.GET.get('confirm', '') == '1':
+      instance.key.delete()
+      return http.HttpResponseRedirect('../../')
+      
+    c = {
+      'title': 'Delete: {}'.format(instance.__unicode__()),
+      'admin': self,
+      'instance': instance,
+    }
+    
+    return AdminResponse(self.app.site, request, 'lazysusan/delete.html', c)
     
   def pre_save (self, request, instance, form):
     return None
